@@ -1,0 +1,697 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome file</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><p>If we want to create odoo module we should create first <a href="http://manifest.py">manifest.py</a> and <a href="http://init.py">init.py</a><br>
+#: in <strong>manifest</strong>.py we have to create following code.</p>
+<pre><code>{
+
+'name': 'Module Learning',
+'version': '1.0',
+'summary': 'This is a learning module',
+'author': 'Saiful Islam Shawon',
+'category': 'learning',
+'depends': ['base'],
+'data': [
+],
+'installable': True,
+'auto_install': False,
+}
+</code></pre>
+<p><strong>second</strong>: we have to create models. after that inside the models. we have to create <a href="http://init.py">init.py</a> and another python file, where we will make field.<br>
+models/init.py<br>
+models/patient.py<br>
+The global <a href="http://Init.py">Init.py</a> we have to write</p>
+<pre><code>from .import  models
+</code></pre>
+<p>another <a href="http://init.py">init.py</a> which was inside the models. In there we have to write</p>
+<pre><code>from . import  patient
+</code></pre>
+<p>now we have to write <a href="http://patient.py">patient.py</a></p>
+<pre><code>from  odoo  import  api, models, fields
+  
+
+class  HospitalPatient(models.Model):
+	_name  =  "hospital.patient"
+	_description  =  "this is a hospital patient model"
+
+	name  =  fields.Char(string="Name", required=True)
+	date_of_birth  =  fields.Date(string="DOB")
+	gender  =  fields.Selection([('male', 'Male'), ('female', 'Female')], string="Gender")
+</code></pre>
+<p>now we can find our created module from seeting<br>
+seeting/technical/models</p>
+<p>#: now we have to create menu</p>
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;odoo&gt; 
+
+	&lt;menuitem  id="menu_hospital_root"  name="HMS"&gt;&lt;/menuitem&gt;
+	&lt;menuitem  id="menu_front_desk"  name="front desk"  parent="menu_hospital_root"&gt;&lt;/menuitem&gt;
+	&lt;menuitem  id="menu_patients"  name="patients"  parent="menu_front_desk"&gt;&lt;/menuitem&gt;
+
+&lt;/odoo&gt;
+</code></pre>
+<p>Now we have to tell to <a href="http://manifest.py">manifest.py</a>. as we have create <a href="http://manifest.py">manifest.py</a></p>
+<pre><code>'data': [
+	#security
+
+	#action
+
+	#menu
+	'views/menu.xml'
+],
+</code></pre>
+<p>now we have to create actions. we can create action in any python file. we create<br>
+views/patient_vies.xml</p>
+<pre><code>&lt;odoo&gt;
+
+	&lt;data&gt;
+
+		&lt;!-- Window Action --&gt;
+		&lt;record  id="action_hospital_patient"  model="ir.actions.act_window"&gt;
+			&lt;field  name="name"&gt;Patients&lt;/field&gt;
+			&lt;field  name="res_model"&gt;hospital.patient&lt;/field&gt;
+			&lt;field  name="view_mode"&gt;list,form&lt;/field&gt;
+			&lt;field  name="help"  type="html"&gt;
+			&lt;p  class="o_view_nocontent_smiling_face"&gt;
+			Create your first Book!
+			&lt;/p&gt;
+			&lt;/field&gt;
+		&lt;/record&gt;
+
+	&lt;/data&gt;
+&lt;/odoo&gt;
+</code></pre>
+<p>now we have to create security file<br>
+inside security we have to create csv file<br>
+security/ir.model.access.csv</p>
+<pre><code>id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hospital_patient,access.hospital.patient,model_hospital_patient,base.group_user,1,1,1,1
+</code></pre>
+<p>now we are creating form view list view inside <a href="http://patient.py">patient.py</a></p>
+<pre><code>&lt;odoo&gt;
+    &lt;data&gt;
+
+        &lt;!-- list view --&gt;
+        &lt;odoo&gt;
+            &lt;record id="view_hospital_patient_list" model="ir.ui.view"&gt;
+                &lt;field name="name"&gt;hospital.patient.list&lt;/field&gt;
+                &lt;field name="model"&gt;hospital.patient&lt;/field&gt;
+                &lt;field name="arch" type="xml"&gt;
+                    &lt;list string="Patients"&gt;
+                        &lt;field name="name" /&gt;
+                        &lt;field name="gender" /&gt;
+                        &lt;field name="date_of_birth" /&gt;
+                    &lt;/list&gt;
+                &lt;/field&gt;
+            &lt;/record&gt;
+        &lt;/odoo&gt;
+
+        &lt;!-- list view --&gt;
+        &lt;odoo&gt;
+            &lt;record id="view_hospital_patient_form" model="ir.ui.view"&gt;
+                &lt;field name="name"&gt;hospital.patient.form&lt;/field&gt;
+                &lt;field name="model"&gt;hospital.patient&lt;/field&gt;
+                &lt;field name="arch" type="xml"&gt;
+                    &lt;form string="Patients"&gt;
+                        &lt;sheet&gt;
+                            &lt;group&gt;
+                                &lt;group&gt;
+                                    &lt;field name="name" /&gt;
+                                    &lt;field name="gender" /&gt;
+                                &lt;/group&gt;
+                                &lt;group&gt;
+                                    &lt;field name="date_of_birth" /&gt;
+                                &lt;/group&gt;
+                            &lt;/group&gt;
+                        &lt;/sheet&gt;
+                    &lt;/form&gt;
+                &lt;/field&gt;
+            &lt;/record&gt;
+        &lt;/odoo&gt;
+
+        &lt;!-- Window Action --&gt;
+        &lt;record id="action_hospital_patient" model="ir.actions.act_window"&gt;
+            &lt;field name="name"&gt;Patients&lt;/field&gt;
+            &lt;field name="res_model"&gt;hospital.patient&lt;/field&gt;
+            &lt;field name="view_mode"&gt;list,form&lt;/field&gt;
+            &lt;field name="help" type="html"&gt;
+                &lt;p class="o_view_nocontent_smiling_face"&gt;
+                    Create your first Book!
+                &lt;/p&gt;
+            &lt;/field&gt;
+        &lt;/record&gt;
+
+    &lt;/data&gt;
+&lt;/odoo&gt;
+</code></pre>
+<p>now we we are creating optional in list view</p>
+<pre><code>&lt;list string="Patients"&gt;
+    &lt;field name="name" /&gt;
+    &lt;field name="gender" optional="show"/&gt;
+    &lt;field name="date_of_birth" optional="hide"/&gt;
+&lt;/list&gt;
+</code></pre>
+<p><strong>now we want add chatter and tracking</strong><br>
+add following code in models</p>
+<pre><code>_inherit  = ['mail.thread', 'mail.activity.mixin']
+</code></pre>
+<p>add below code in <a href="http://manifet.py">manifet.py</a></p>
+<pre><code>'depends': ['base', 'mail'],
+</code></pre>
+<p>add chatter in xml</p>
+<pre><code>&lt;!-- list view --&gt;
+&lt;odoo&gt;
+    &lt;record id="view_hospital_patient_form" model="ir.ui.view"&gt;
+        &lt;field name="name"&gt;hospital.patient.form&lt;/field&gt;
+        &lt;field name="model"&gt;hospital.patient&lt;/field&gt;
+        &lt;field name="arch" type="xml"&gt;
+            &lt;form string="Patients"&gt;
+                &lt;sheet&gt;
+                    &lt;group&gt;
+                        &lt;group&gt;
+                            &lt;field name="name" /&gt;
+                            &lt;field name="gender" /&gt;
+                        &lt;/group&gt;
+                        &lt;group&gt;
+                            &lt;field name="date_of_birth" /&gt;
+                        &lt;/group&gt;
+                    &lt;/group&gt;
+                &lt;/sheet&gt;
+
+                 &lt;!-- 👇 CHATTER --&gt;
+                &lt;chatter/&gt;
+            &lt;/form&gt;
+        &lt;/field&gt;
+    &lt;/record&gt;
+&lt;/odoo&gt;
+</code></pre>
+<p>I want to add creat, edit and delete</p>
+<pre><code>&lt;!-- form view --&gt;
+&lt;record id="view_all_hospital_patient_form" model="ir.ui.view"&gt;
+    &lt;field name="name"&gt;hospital.all.patient.form&lt;/field&gt;
+    &lt;field name="model"&gt;hospital.patient&lt;/field&gt;
+    &lt;field name="arch" type="xml"&gt;
+        &lt;form string="Patients" create="False" edit="False" delete="False"&gt;
+            &lt;sheet&gt;
+                &lt;group&gt;
+                    &lt;group&gt;
+                        &lt;field name="name" /&gt;
+                        &lt;field name="gender" /&gt;
+                    &lt;/group&gt;
+                    &lt;group&gt;
+                        &lt;field name="date_of_birth" /&gt;
+                    &lt;/group&gt;
+                &lt;/group&gt;
+            &lt;/sheet&gt;
+
+            &lt;!-- 👇 CHATTER --&gt;
+            &lt;chatter/&gt;
+        &lt;/form&gt;
+    &lt;/field&gt;
+&lt;/record&gt;
+</code></pre>
+<p>If I want to create sequence<br>
+Create or add to a file like <code>data/sequence.xml</code>:</p>
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;odoo&gt;
+    &lt;data noupdate="1"&gt;
+        &lt;record id="seq_patient_appointment" model="ir.sequence"&gt;
+            &lt;field name="name"&gt;Patient Appointment Sequence&lt;/field&gt;
+            &lt;field name="code"&gt;patient.appointment&lt;/field&gt;
+            &lt;field name="prefix"&gt;APT/&lt;/field&gt;
+            &lt;field name="padding"&gt;5&lt;/field&gt;
+            &lt;field name="number_increment"&gt;1&lt;/field&gt;
+            &lt;field name="number_next"&gt;1&lt;/field&gt;
+        &lt;/record&gt;
+    &lt;/data&gt;
+&lt;/odoo&gt;
+</code></pre>
+<p>Step 2: Add the File to <code>__manifest__.py</code></p>
+<pre><code>'data': [
+    'security/ir.model.access.csv',
+    'data/sequence.xml',   # ✅ Add this — load before views
+    'views/appointment_view.xml',
+    'views/menu.xml',
+],
+</code></pre>
+<p>Step 3: Add the <code>ref</code> Field to Your Model</p>
+<pre><code>ref = fields.Char( string="Reference", default=lambda self:  ('New'), readonly=True, tracking=True )
+
+# ✅ Correct way (Odoo 17, 18, 19)
+@api.model_create_multi
+def create(self, vals_list):
+    for vals in vals_list:
+        if vals.get('ref', 'New') == 'New':
+            vals['ref'] = self.env['ir.sequence'].next_by_code('patient.appointment') or 'New'
+    return super().create(vals_list)
+</code></pre>
+<p>now I want to create clickable status-bar<br>
+add a field in a model</p>
+<pre><code>state = fields.Selection([  # ✅ Add this ('draft',  'Draft'), ('confirmed',  'Confirmed'), ('done',  'Done'), ('cancelled',  'Cancelled'), ], string="Status", default='draft', tracking=True)
+</code></pre>
+<p>add following code in your xml file, where you want to show.</p>
+<pre><code>&lt;header&gt; 
+	&lt;!-- ✅ Correct — single quotes inside double-quoted attribute --&gt;
+	&lt;field name="state" widget="statusbar" options="{'clickable': '1'}"/&gt;
+ &lt;/header&gt;
+</code></pre>
+<p>I want to create button as well as status-bar will work with button<br>
+step 1: create button inside header</p>
+<pre><code>&lt;header&gt;
+   &lt;!-- Primary button --&gt;
+   &lt;button name="action_confirm" string="Confirm" type="object" class="btn-primary" invisible="state != 'draft'"/&gt;
+   &lt;button name="action_done" string="Done" type="object" class="btn-primary" invisible="state != 'confirmed'"/&gt;
+
+   &lt;!-- Normal button --&gt;
+   &lt;button name="action_cancel" string="Cancel" type="object" class="btn-danger"/&gt;
+
+   &lt;!-- statusbar --&gt;
+   &lt;field name="state" widget="statusbar" statusbar_visible="draft,confirmed,done"/&gt;
+&lt;/header&gt;
+</code></pre>
+<p>stet 2: create function inside models</p>
+<pre><code># button action
+def action_confirm(self):
+    self.state = 'confirmed'
+    
+def action_done(self):
+    self.state = 'done'
+    
+def action_cancel(self):
+    self.state = 'cancelled'
+</code></pre>
+<p>If i want to add icon in module. I should create a file<br>
+static/description/icon.png<br>
+another way to add icon</p>
+<pre><code>&lt;menuitem  id="menu_hospital_root"  name="HMS"  web_icon="module_learning,static/description/icon.png"&gt;&lt;/menuitem&gt;
+</code></pre>
+<p>want to create many to many field<br>
+at the begining we have to create a model like this.</p>
+<pre><code>from odoo import api, models, fields
+
+class PatientTag(models.Model):
+   _name = "patient.tag"
+   _description = "this is patient tag"
+   
+   name = fields.Char(string="Tag Name")
+   color = fields.Integer(string="Color", default=0)
+</code></pre>
+<p>second step we have to give access of this model in security/ir.model.access.csv<br>
+step 2: need to create xml file of this model<br>
+step 3: make relationship in another model</p>
+<pre><code>tags  =  fields.Many2many('patient.tag', string="Tags")
+</code></pre>
+<p>step 4: show this relationship in xml</p>
+<pre><code>&lt;field  name="tags"  widget="many2many_tags"  options="{'color_field': 'color'}"/&gt;
+</code></pre>
+<p>If we want to create onetomany field and relationship<br>
+step 1: first create a model. like this</p>
+<pre><code>class HospitalAppointmentLine(models.Model):
+  _name = "hospital.appointment.line"
+  _description = "this is hospital appointment line"
+  
+  product_id = fields.Many2one('product.product',string="Products")
+  appointment_id = fields.Many2one('patient.appointment', string="Appointments")
+  qty = fields.Float(string="Quantity")
+</code></pre>
+<p>step 2: create xml file of this model. give the access of this model. now create menu of this action.<br>
+step 3: make relationship with other model, which do you want to make relationship.</p>
+<pre><code>appointment_line_id  =  fields.One2many('hospital.appointment.line', 'appointment_id', string="Lines")
+</code></pre>
+<p>now add this in xml file</p>
+<pre><code>&lt;!-- ✅ Must match model field name --&gt;
+&lt;field name="appointment_line_id"&gt;
+   &lt;list editable="bottom"&gt;
+       &lt;field name="product_id"/&gt;
+       &lt;field name="appointment_id"/&gt;
+       &lt;field name="qty"/&gt;
+   &lt;/list&gt;
+&lt;/field&gt;
+</code></pre>
+<p>If want to create notebook and page</p>
+<pre><code>&lt;notebook&gt;
+    &lt;page name="appointment_line" string="Lines"&gt;
+        &lt;!-- ✅ Must match model field name --&gt;
+        &lt;field name="appointment_line_id"&gt;
+            &lt;list editable="bottom"&gt;
+                &lt;field name="product_id"/&gt;
+                &lt;field name="appointment_id"/&gt;
+                &lt;field name="qty"/&gt;
+            &lt;/list&gt;
+        &lt;/field&gt;
+    &lt;/page&gt;
+&lt;/notebook&gt;
+</code></pre>
+<p>Now I want to add _rec_name_search.<br>
+step 1: got to appointment model. now add this</p>
+<pre><code>_rec_names_search  = ['ref', 'patient_id.name']
+</code></pre>
+<p>want to add compute display namd</p>
+<pre><code>def _compute_display_name(self):
+  for rec in self:
+    rec.display_name = f"[{rec.ref}] {rec.patient_id.name}"
+</code></pre>
+<p>how to work with compute field<br>
+step 1: create a field</p>
+<pre><code>total_quantity  =  fields.Float(compute='compute_total_quantity', string="Total quantity", store=True)
+</code></pre>
+<p>step 2: create function</p>
+<pre><code>@api.depends('appointment_line_id.qty')
+ def compute_total_quantity(self):
+   for rec in self:
+     self.total_quantity = 0
+     for line in self.appointment_line_id:
+       self.total_quantity += line.qty
+</code></pre>
+<p>step 3: now add this field in xml</p>
+<pre><code>&lt;field  name="total_quantity"/&gt;
+</code></pre>
+<p>when we want to add related field<br>
+step 1: In the module we have to create related field<br>
+step 3: add this field in xml file</p>
+<pre><code>patient_id  =  fields.Many2one('hospital.patient',string="Patient", tracking=True)
+dob  =  fields.Date(related='patient_id.date_of_birth')
+</code></pre>
+<p>want to add ondelete</p>
+<pre><code>patient_id = fields.Many2one( 'hospital.patient', string="Patient", ondelete='restrict', tracking=True )
+</code></pre>
+<p>another way</p>
+<pre><code>patient_id = fields.Many2one( 'hospital.patient', string="Patient", ondelete='cascade', tracking=True )
+</code></pre>
+<p>another way</p>
+<pre><code>patient_id = fields.Many2one( 'hospital.patient', string="Patient", ondelete='set null', tracking=True )
+</code></pre>
+<p>want to add inherit delete method</p>
+<pre><code>def  unlink(self):
+	raise  ValidationError("You cannot delete ")
+</code></pre>
+<p>we can use delete method like this<br>
+we can add in here validation error or user error</p>
+<pre><code>def unlink(self):
+    for rec in self:
+        if rec.state == 'confirmed':
+            raise ValidationError("You cannot delete a confirmed appointment!")
+    return super(PatientAppointment, self).unlink()
+</code></pre>
+<p>#: security related<br>
+How to create group and privilege<br>
+step 1: create a file in security<br>
+security/security.xml</p>
+<pre><code>&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;odoo&gt;
+  &lt;data&gt;
+    &lt;!-- creating privilege --&gt;
+    &lt;record id="privilege_hospital_management" model="res.groups.privilege"&gt;
+      &lt;field name="name"&gt;Hospital Management&lt;/field&gt;
+      &lt;field name="sequence"&gt;10&lt;/field&gt;
+    &lt;/record&gt;
+
+    &lt;!-- creating group --&gt;
+    &lt;record id="group_hospital_receptionist" model="res.groups"&gt;
+      &lt;field name="name"&gt;Receptionist&lt;/field&gt;
+      &lt;field name="privilege_id" ref="privilege_hospital_management"/&gt;
+      &lt;field name="implied_ids" eval="[(4, ref('base.group_user'))]"/&gt;
+    &lt;/record&gt;
+
+    &lt;!-- creating group --&gt;
+    &lt;record id="group_hospital_doctor" model="res.groups"&gt;
+      &lt;field name="name"&gt;Doctor&lt;/field&gt;
+      &lt;field name="privilege_id" ref="privilege_hospital_management"/&gt;
+      &lt;field name="implied_ids" eval="[(4, ref('base.group_user'))]"/&gt;
+    &lt;/record&gt;
+
+  &lt;/data&gt;
+&lt;/odoo&gt;
+</code></pre>
+<p>step 2: add security.xml in <a href="http://manifest.py">manifest.py</a><br>
+If i want apps module just can show administrator.<br>
+setting/technical/menu_items/apps/apps/<br>
+now just add visibility ----&gt; role-adminstrator</p>
+<p>#: if i want just want any specific group user just can see any model. means give access right for specific group user.</p>
+<pre><code>id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hospital_patient,access.hospital.patient,model_hospital_patient,module_learning.group_hospital_receptionist,1,1,1,1
+access_patient_appointment,access.patient.appointment,model_patient_appointment,module_learning.group_hospital_receptionist,1,1,1,1
+access_patient_tag,access.patient.tag,model_patient_tag,module_learning.group_hospital_receptionist,1,1,1,1
+access_hospital_appointment_line,access.hospital.appointment.line,model_hospital_appointment_line,module_learning.group_hospital_receptionist,1,1,1,1
+</code></pre>
+<p>#: if i want to give access of a menu for specific group user</p>
+<pre><code>&lt;menuitem  id="appointment_menu"  name="Appointments"  parent="menu_hospital_root"  groups="module_learning.group_hospital_doctor"&gt;&lt;/menuitem&gt;
+</code></pre>
+<p>#: if I want to add ir.rule in security.xml file<br>
+in security.xml just paste it</p>
+<pre><code>&lt;record id="appointment_rule" model="ir.rule"&gt;
+  &lt;field name="name"&gt;Project: See Own Records&lt;/field&gt;
+  &lt;field name="model_id" ref="module_learning.model_patient_appointment"/&gt;
+  &lt;field name="groups" eval="[(4, ref('base.group_user'))]"/&gt;
+  &lt;field name="domain_force"&gt;[('create_uid', '=', user.id)]&lt;/field&gt;
+&lt;/record&gt;
+</code></pre>
+<p>#: If i want to get data by webhook api<br>
+step 1: active (base_automation) module from apps<br>
+step 2: setting/technical/automation rule<br>
+step 3: create new rule<br>
+step 4: set name/set model/trigger–&gt;on webhook<br>
+step 5: click add an action/record.write(payload)<br>
+step 6: paste following text in target record</p>
+<pre><code>model.browse(int(payload.get('id')))
+</code></pre>
+<p>if i want just can change just only email<br>
+step 5:</p>
+<pre><code>email = payload.get('email')
+record.write({'email': email})
+</code></pre>
+<p>youtube:  <a href="https://www.youtube.com/watch?v=9KWuFFd7tEw&amp;list=PLqRRLx0cl0hq0T4SV-BHhCicWOpzyWcHd&amp;index=18">https://www.youtube.com/watch?v=9KWuFFd7tEw&amp;list=PLqRRLx0cl0hq0T4SV-BHhCicWOpzyWcHd&amp;index=18</a></p>
+<p>#: if I want to send data to webhook<br>
+step 1: setting/technical/server action<br>
+step 2: set name, set module/type----&gt; send webhook notification<br>
+step 3: set url, set fields name<br>
+step 4: setting/technical/automation rules/<br>
+step 5: trigger : on create<br>
+step 6: same as before, just change in add action/multi choice action</p>
+<p>#: If we want to create a record with webhook<br>
+step 1: active (base automation) module<br>
+step 2: setting/technical/authentication_rules<br>
+step 3: click new<br>
+step 4: select name<br>
+model : authentication rule<br>
+trigger : on webhook<br>
+target Record : model.search([], limit=1)<br>
+add action : exeucate code</p>
+<pre><code>			vals = {
+    'name': payload.get('name')
+}
+env['res.partner'].create(vals)
+</code></pre>
+<p>If want to add multiple field</p>
+<pre><code>vals = {
+    'name': payload.get('name'),
+    'email': payload.get('email')
+}
+env['res.partner'].create(vals)
+</code></pre>
+<p>*: payload is used to get value. if we just use payload we can get all value what is paste in postman</p>
+<pre><code>env['res.partner'].create(payload)
+</code></pre>
+<p>#: If we want to call existing menu<br>
+step 1: creating menu and sub-menu, like following this</p>
+<pre><code>&lt;menuitem id="billing_menu" name="Billing" parent="menu_hospital_root"&gt;&lt;/menuitem&gt;
+&lt;menuitem id="invoice_menu" name="Invoice" parent="billing_menu" action="account.action_move_out_invoice"&gt;&lt;/menuitem&gt;
+&lt;menuitem id="payment_menu" name="Payments" parent="billing_menu" action="account.action_account_payments"&gt;&lt;/menuitem&gt;
+</code></pre>
+<p>step 2: get action from external id<br>
+-&gt; active developer mode<br>
+-&gt; click developer mode<br>
+-&gt; click action<br>
+-&gt; copy External id<br>
+-&gt; paste it into menu</p>
+<p>#: If we want to inherit any model and want to add any field on existing form or module<br>
+step 1: create a python file<br>
+step 2: create a class and inherit module wanted to modify in here.</p>
+<pre><code>from odoo import api, fields, models
+
+class AppointMove(models.Model):
+  _inherit = 'account.move'
+  
+  appointment_id = fields.Many2one('patient.appointment', string="Appointment")
+</code></pre>
+<p>step 3: create xml file of this module for modify field and add field</p>
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;odoo&gt;
+
+ &lt;record id="account_move_view_form" model="ir.ui.view"&gt;
+   &lt;field name="name"&gt;account.move.view.form&lt;/field&gt;
+   &lt;field name="model"&gt;account.move&lt;/field&gt;
+   &lt;field name="inherit_id" ref="account.view_move_form" /&gt;  &lt;!-- Reference to parent view --&gt;
+   &lt;field name="arch" type="xml"&gt;
+
+     &lt;!-- Target by xpath --&gt;
+     &lt;xpath expr="//field[@name='invoice_date']" position="after"&gt;
+       &lt;field name="appointment_id" /&gt;
+     &lt;/xpath&gt;
+
+   &lt;/field&gt;
+ &lt;/record&gt;
+
+ &lt;record id="account_move_view_list" model="ir.ui.view"&gt;
+   &lt;field name="name"&gt;account.move.view.list&lt;/field&gt;
+   &lt;field name="model"&gt;account.move&lt;/field&gt;
+   &lt;field name="inherit_id" ref="account.view_out_invoice_tree" /&gt;  &lt;!-- Reference to parent view --&gt;
+   &lt;field name="arch" type="xml"&gt;
+
+     &lt;!-- Target by xpath --&gt;
+     &lt;xpath expr="//field[@name='invoice_partner_display_name']" position="after"&gt;
+       &lt;field name="appointment_id" /&gt;
+     &lt;/xpath&gt;
+
+   &lt;/field&gt;
+ &lt;/record&gt;
+
+&lt;/odoo&gt;
+</code></pre>
+<p>step 4: add this xml file in <a href="http://menufest.py">menufest.py</a></p>
+<p>#: if i want to hide any field from existing form<br>
+step 1: just change in xml file, other thing is similar that previous code</p>
+<pre><code>&lt;record id="account_move_view_form" model="ir.ui.view"&gt;
+  &lt;field name="name"&gt;account.move.view.form&lt;/field&gt;
+  &lt;field name="model"&gt;account.move&lt;/field&gt;
+  &lt;field name="inherit_id" ref="account.view_move_form" /&gt;  &lt;!-- Reference to parent view --&gt;
+  &lt;field name="arch" type="xml"&gt;
+
+    &lt;!-- Target by xpath --&gt;
+    &lt;xpath expr="//field[@name='invoice_date']" position="after"&gt;
+      &lt;field name="appointment_id" /&gt;
+    &lt;/xpath&gt;
+
+    &lt;!-- Target by xpath --&gt;
+    &lt;xpath expr="//field[@name='auto_post']" position="attributes"&gt;
+      &lt;attribute name="invisible"&gt;1&lt;/attribute&gt;
+    &lt;/xpath&gt;
+
+  &lt;/field&gt;
+&lt;/record&gt;
+</code></pre>
+<p>#: if i want to hide any field</p>
+<pre><code>&lt;group&gt;
+  &lt;field name="date_of_birth" /&gt;
+  &lt;field name="is_ok" /&gt;
+  &lt;field name="gurdian" invisible="1" /&gt;
+&lt;/group&gt;
+</code></pre>
+<p>#: if i want just can read any field</p>
+<pre><code>&lt;field  name="gurdian"  readonly="1"  /&gt;
+</code></pre>
+<p>#: add required in a field</p>
+<pre><code>&lt;field  name="gurdian"  required="1"  /&gt;
+</code></pre>
+<p>#: want to add any condition</p>
+<pre><code>&lt;field  name="gurdian"  invisible="not is_ok"/&gt;
+</code></pre>
+<p>#: we can use condition like this way</p>
+<pre><code>&lt;field  name="gurdian"  readonly="gender == 'female' or is_ok == True"/&gt;
+</code></pre>
+<p>#: if I want to add search view</p>
+<pre><code>&lt;!-- search view --&gt;
+&lt;record id="view_all_hospital_patient_search" model="ir.ui.view"&gt;
+  &lt;field name="name"&gt;hospital.all.patient.search&lt;/field&gt;
+  &lt;field name="model"&gt;hospital.patient&lt;/field&gt;
+  &lt;field name="arch" type="xml"&gt;
+    &lt;search string="Patients"&gt;
+      &lt;field name="name" /&gt;
+      &lt;field name="gender"/&gt;
+      &lt;field name="date_of_birth"/&gt;
+    &lt;/search&gt;
+  &lt;/field&gt;
+&lt;/record&gt;
+</code></pre>
+<p>#: want to add filter</p>
+<pre><code>&lt;!-- search view --&gt;
+&lt;record id="view_all_hospital_patient_search" model="ir.ui.view"&gt;
+  &lt;field name="name"&gt;hospital.all.patient.search&lt;/field&gt;
+  &lt;field name="model"&gt;hospital.patient&lt;/field&gt;
+  &lt;field name="arch" type="xml"&gt;
+    &lt;search string="Patients"&gt;
+      &lt;field name="name" /&gt;
+      &lt;field name="gender"/&gt;
+      &lt;field name="date_of_birth"/&gt;
+      
+      &lt;!-- filter --&gt;
+      &lt;filter string="Male"   name="filter_male"   domain="[('gender', '=', 'male')]"/&gt;
+      &lt;filter string="Female"   name="filter_female"   domain="[('gender', '=', 'female')]"/&gt;
+    &lt;/search&gt;
+  &lt;/field&gt;
+&lt;/record&gt;
+</code></pre>
+<p>#: want to use separator</p>
+<pre><code>&lt;!-- filter --&gt;
+      &lt;filter string="Male"   name="filter_male"   domain="[('gender', '=', 'male')]"/&gt;
+      &lt;separator&gt;&lt;/separator&gt;
+      &lt;filter string="Female"   name="filter_female"   domain="[('gender', '=', 'female')]"/&gt;
+  
+</code></pre>
+<p>#: want to add group by</p>
+<pre><code>&lt;!-- search view --&gt;
+&lt;record id="view_all_hospital_patient_search" model="ir.ui.view"&gt;
+  &lt;field name="name"&gt;hospital.all.patient.search&lt;/field&gt;
+  &lt;field name="model"&gt;hospital.patient&lt;/field&gt;
+  &lt;field name="arch" type="xml"&gt;
+    &lt;search string="Patients"&gt;
+      &lt;field name="name" /&gt;
+      &lt;field name="gender"/&gt;
+      &lt;field name="date_of_birth"/&gt;
+      
+      &lt;!-- filter --&gt;
+      &lt;filter string="Male"   name="filter_male"   domain="[('gender', '=', 'male')]"/&gt;
+      &lt;separator&gt;&lt;/separator&gt;
+      &lt;filter string="Female"   name="filter_female"   domain="[('gender', '=', 'female')]"/&gt;
+      
+      &lt;!-- 👥 Group By --&gt;
+      &lt;filter string="Gender"        name="group_by_gender"  context="{'group_by': 'gender'}"/&gt;
+    &lt;/search&gt;
+  &lt;/field&gt;
+&lt;/record&gt;
+</code></pre>
+<p>#: If i want to add search pannel</p>
+<pre><code>&lt;!-- search view --&gt;
+&lt;record id="view_all_hospital_patient_search" model="ir.ui.view"&gt;
+  &lt;field name="name"&gt;hospital.all.patient.search&lt;/field&gt;
+  &lt;field name="model"&gt;hospital.patient&lt;/field&gt;
+  &lt;field name="arch" type="xml"&gt;
+    &lt;search string="Patients"&gt;
+      &lt;field name="name" /&gt;
+      &lt;field name="gender"/&gt;
+      &lt;field name="date_of_birth"/&gt;
+      
+      &lt;!-- search pannel --&gt;
+      &lt;searchpanel&gt;
+          &lt;field name="gender" string="Gender" enable_counters="1" icon="fa-venus-mars"/&gt;
+      &lt;/searchpanel&gt;
+    &lt;/search&gt;
+  &lt;/field&gt;
+&lt;/record&gt;
+</code></pre>
+<p>#: if want to add default filter just add it on action</p>
+<pre><code>&lt;record id="action_hospital_patient" model="ir.actions.act_window"&gt;
+    &lt;field name="name"&gt;Patients&lt;/field&gt;
+    &lt;field name="res_model"&gt;hospital.patient&lt;/field&gt;
+    &lt;field name="view_mode"&gt;list,form&lt;/field&gt;
+    &lt;field name="search_view_id" ref="view_hospital_patient_search"/&gt;
+
+    &lt;!-- 👇 Default filter when menu loads --&gt;
+    &lt;field name="context"&gt;{
+        'search_default_filter_male': 1,
+    }&lt;/field&gt;
+
+&lt;/record&gt;
+</code></pre>
+</div>
+</body>
+
+</html>
