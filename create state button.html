@@ -1,0 +1,70 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome file</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="how-to-create-stat-button">How to Create Stat Button</h1>
+<p>Step 1 — Add in Form View</p>
+<pre><code>&lt;form&gt;
+    &lt;!-- Stat Buttons --&gt;
+    &lt;div class="oe_button_box" name="button_box"&gt;
+
+        &lt;button type="object"
+            name="action_get_appointments"
+            class="oe_stat_button"
+            icon="fa-calendar"&gt;
+            &lt;field name="appointment_count" string="Appointments" widget="statinfo"/&gt;
+        &lt;/button&gt;
+
+    &lt;/div&gt;
+
+    &lt;sheet&gt;
+        &lt;group&gt;
+            &lt;field name="name"/&gt;
+        &lt;/group&gt;
+    &lt;/sheet&gt;
+&lt;/form&gt;
+</code></pre>
+<p>Step 2 — Add Count Field in Model</p>
+<pre><code>from odoo import api, fields, models
+
+class Patient(models.Model):
+    _name = 'hospital.patient'
+
+    name = fields.Char(string='Name')
+
+    # count field
+    appointment_count = fields.Integer(
+        string='Appointments',
+        compute='_compute_appointment_count',
+    )
+
+    # compute count
+    @api.depends('appointment_ids')
+    def _compute_appointment_count(self):
+        for rec in self:
+            rec.appointment_count = self.env['hospital.appointment'].search_count([
+                ('patient_id', '=', rec.id)
+            ])
+
+    # button click action
+    def action_get_appointments(self):
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Appointments',
+            'res_model': 'hospital.appointment',
+            'view_mode': 'list,form',
+            'domain': [('patient_id', '=', self.id)],
+        }
+    
+</code></pre>
+</div>
+</body>
+
+</html>
