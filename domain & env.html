@@ -1,0 +1,52 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome file</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="domain--env">domain &amp; env</h1>
+<p><strong>domain :</strong> domain is used to search value in a model.</p>
+<pre><code>patient_id = fields.Many2one(
+    'hospital.patient',
+    string='Patient',
+    domain=[('state', '=', 'confirmed')],  # only show confirmed patients
+)
+</code></pre>
+<pre><code>&lt;record id="action_patient" model="ir.actions.act_window"&gt;
+    &lt;field name="name"&gt;Patients&lt;/field&gt;
+    &lt;field name="res_model"&gt;hospital.patient&lt;/field&gt;
+    &lt;field name="view_mode"&gt;list,form&lt;/field&gt;
+    &lt;field name="domain"&gt;[('state', '=', 'confirmed')]&lt;/field&gt;
+&lt;/record&gt;
+</code></pre>
+<p><strong>eve :</strong> env give me access to everything. we can find anything from a model by end<br>
+what env can do</p>
+<pre><code>Property													What it gives you
+`self.env['model.name']`									Access any model
+`self.env.user`												Current logged in user
+`self.env.uid`												Current user ID
+`self.env.company`											Current company
+`self.env.cr`												Database cursor
+`self.env.context`											Current context dictionary
+</code></pre>
+<p>Most Common Uses</p>
+<ol>
+<li>Access Another Model</li>
+</ol>
+<pre><code># Get all patients
+patients = self.env['hospital.patient'].search([])
+
+# Get confirmed patients only
+patients = self.env['hospital.patient'].search([
+    ('state', '=', 'confirmed')
+])
+</code></pre>
+</div>
+</body>
+
+</html>
