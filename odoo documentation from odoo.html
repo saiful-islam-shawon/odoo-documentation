@@ -1,0 +1,365 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome file</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="odoo-company-documnetation">odoo company documnetation</h1>
+<p><strong><a href="http://manifest.py">manifest.py</a>:</strong> In manifest file only required field is <code>name</code><br>
+<strong>dependency:</strong> A dependency means that the Odoo framework will ensure that these modules are installed before our module is installed. Moreover, if one of these dependencies is uninstalled, then our module and <strong>any other that depends on it will also be uninstalled.</strong></p>
+<p><strong>How to update database and module:</strong> python odoo-bin -d your_database -u module_name</p>
+<p><strong>Automatic Fields:</strong><br>
+<code>id</code>  (<code>Id</code>)<br>
+The unique identifier for a record of the model.</p>
+<p><code>create_date</code>  (<a href="https://www.odoo.com/documentation/19.0/developer/reference/backend/orm.html#odoo.fields.Datetime" title="odoo.fields.Datetime"><code>Datetime</code></a>)<br>
+Creation date of the record.</p>
+<p><code>create_uid</code>  (<a href="https://www.odoo.com/documentation/19.0/developer/reference/backend/orm.html#odoo.fields.Many2one" title="odoo.fields.Many2one"><code>Many2one</code></a>)<br>
+User who created the record.</p>
+<p><code>write_date</code>  (<a href="https://www.odoo.com/documentation/19.0/developer/reference/backend/orm.html#odoo.fields.Datetime" title="odoo.fields.Datetime"><code>Datetime</code></a>)<br>
+Last modification date of the record.</p>
+<p><code>write_uid</code>  (<a href="https://www.odoo.com/documentation/19.0/developer/reference/backend/orm.html#odoo.fields.Many2one" title="odoo.fields.Many2one"><code>Many2one</code></a>)<br>
+User who last modified the record.</p>
+<p><strong>Access Rights:</strong> When no access rights are defined on a model, Odoo determines that no users can access the data. It is even notified in the log:</p>
+<p><strong>xml file:</strong> xml file can contain html tag</p>
+<pre><code>&lt;record id="view_estate_property_form" model="ir.ui.view"&gt;
+    &lt;field name="name"&gt;estate.property.form&lt;/field&gt;
+    &lt;field name="model"&gt;estate.property&lt;/field&gt;
+    &lt;field name="arch" type="xml"&gt;
+
+        &lt;form string="Property"&gt;
+            &lt;sheet&gt;
+                &lt;h1&gt;                          &lt;!-- HTML tag --&gt;
+                    &lt;field name="name"/&gt;
+                &lt;/h1&gt;
+                &lt;p&gt;Description goes here&lt;/p&gt;  &lt;!-- HTML tag --&gt;
+                &lt;div class="o_row"&gt;           &lt;!-- HTML tag --&gt;
+                    &lt;field name="price"/&gt;
+                &lt;/div&gt;
+            &lt;/sheet&gt;
+        &lt;/form&gt;
+
+    &lt;/field&gt;
+&lt;/record&gt;
+</code></pre>
+<p>In Odoo, some fields store HTML content directly:</p>
+<pre><code>&lt;!-- In the model (.py) --&gt;
+description = fields.Html(string="Description")
+
+&lt;!-- In the XML view --&gt;
+&lt;field name="description" type="html"/&gt;
+</code></pre>
+<p><strong>Actions:</strong> Actions can be triggered in three ways:</p>
+<ol>
+<li>by clicking on menu items (linked to specific actions)</li>
+<li>by clicking on buttons in views (if these are connected to actions)</li>
+<li>as contextual actions on object</li>
+</ol>
+<p>A basic action for our <code>test_model</code> is:</p>
+<pre><code>&lt;record id="test_model_action" model="ir.actions.act_window"&gt;
+    &lt;field name="name"&gt;Test action&lt;/field&gt;
+    &lt;field name="res_model"&gt;test_model&lt;/field&gt;
+    &lt;field name="view_mode"&gt;list,form&lt;/field&gt;
+&lt;/record&gt;
+</code></pre>
+<p><strong>Menus:</strong></p>
+<pre><code>&lt;menuitem id="test_model_menu_action" action="test_model_action"/&gt;
+</code></pre>
+<p>The menu <code>test_model_menu_action</code> is linked to the action <code>test_model_action</code>, and the action is linked to the model <code>test_model</code>. As previously mentioned, the action can be seen as the link between the menu and the model.</p>
+<p>#: menus always follow an architecture, and in practice there are three levels of menus:</p>
+<ol>
+<li>The root menu, which is displayed in the App switcher (the Odoo Community App switcher is a dropdown menu)</li>
+<li>The first level menu, displayed in the top bar</li>
+<li>The action menus</li>
+</ol>
+<pre><code>&lt;menuitem id="test_menu_root" name="Test"&gt;
+    &lt;menuitem id="test_first_level_menu" name="First Level"&gt;
+        &lt;menuitem id="test_model_menu_action" action="test_model_action"/&gt;
+    &lt;/menuitem&gt;
+&lt;/menuitem&gt;
+</code></pre>
+<p>set default value in a field</p>
+<pre><code>last_seen = fields.Datetime(default=fields.Datetime.now)
+</code></pre>
+<p><strong>views:</strong><br>
+list view</p>
+<pre><code>&lt;list string="Tests"&gt;
+    &lt;field name="name"/&gt;
+    &lt;field name="last_seen"/&gt;
+&lt;/list&gt;
+</code></pre>
+<p>form view</p>
+<pre><code>&lt;form string="Test"&gt;
+    &lt;sheet&gt;
+        &lt;group&gt;
+            &lt;group&gt;
+                &lt;field name="name"/&gt;
+            &lt;/group&gt;
+            &lt;group&gt;
+                &lt;field name="last_seen"/&gt;
+            &lt;/group&gt;
+        &lt;/group&gt;
+        &lt;notebook&gt;
+            &lt;page string="Description"&gt;
+                &lt;field name="description"/&gt;
+            &lt;/page&gt;
+        &lt;/notebook&gt;
+    &lt;/sheet&gt;
+&lt;/form&gt;
+</code></pre>
+<p>search</p>
+<pre><code>&lt;search string="Tests"&gt;
+    &lt;field name="name"/&gt;
+    &lt;field name="last_seen"/&gt;
+&lt;/search&gt;
+</code></pre>
+<p><strong>Domains:</strong> a domain is a list of criteria used to select a subset of a model’s records.</p>
+<pre><code>[('product_type', '=', 'service'), ('unit_price', '&gt;', 1000)]
+</code></pre>
+<p><strong>Relationship:</strong></p>
+<pre><code>partner_id = fields.Many2one("res.partner", string="Partner")
+</code></pre>
+<pre><code>tax_ids = fields.Many2many("account.tax", string="Taxes")
+</code></pre>
+<pre><code>test_ids = fields.One2many("test_model", "partner_id", string="Tests")
+</code></pre>
+<p>Parent Model          Child Model<br>
+────────────          ───────────<br>
+test_ids             partner_id<br>
+(One2many)    ←───   (Many2one)</p>
+<p><strong>Dependencies:</strong></p>
+<pre><code>from odoo import api, fields, models
+
+class TestComputed(models.Model):
+    _name = "test.computed"
+
+    total = fields.Float(compute="_compute_total")
+    amount = fields.Float()
+
+    @api.depends("amount")
+    def _compute_total(self):
+        for record in self:
+            record.total = 2.0 * record.amount
+            
+</code></pre>
+<p><strong>Inverse Function:</strong></p>
+<pre><code>from odoo import api, fields, models
+
+class TestComputed(models.Model):
+    _name = "test.computed"
+
+    total = fields.Float(compute="_compute_total", inverse="_inverse_total")
+    amount = fields.Float()
+
+    @api.depends("amount")
+    def _compute_total(self):
+        for record in self:
+            record.total = 2.0 * record.amount
+
+    def _inverse_total(self):
+        for record in self:
+            record.amount = record.total / 2.0
+
+</code></pre>
+<pre><code>COMPUTE (reading)
+─────────────────
+price + tax  →  _compute_total()  →  total is calculated
+
+
+INVERSE (writing)
+─────────────────
+user edits total  →  _inverse_total()  →  price is updated
+</code></pre>
+<p>Real world example</p>
+<pre><code>Price = 1000
+Tax   = 10%
+─────────────────────────
+Total = 1100   ← computed automatically
+
+
+Now user manually changes Total to 2200:
+─────────────────────────
+_inverse_total() runs
+Price = 2200 / 1.10 = 2000  ← price updated automatically
+Tax   = 10%                  ← stays same
+</code></pre>
+<p>@api.onchange method</p>
+<pre><code>from odoo import api, fields, models
+
+class TestOnchange(models.Model):
+    _name = "test.onchange"
+
+    name = fields.Char(string="Name")
+    description = fields.Char(string="Description")
+    partner_id = fields.Many2one("res.partner", string="Partner")
+
+    @api.onchange("partner_id")
+    def _onchange_partner_id(self):
+        self.name = "Document for %s" % (self.partner_id.name)
+        self.description = "Default description for %s" % (self.partner_id.name)
+        
+</code></pre>
+<p><strong>button action:</strong></p>
+<pre><code>&lt;form&gt;
+    &lt;header&gt;
+        &lt;button name="action_do_something" type="object" string="Do Something"/&gt;
+    &lt;/header&gt;
+    &lt;sheet&gt;
+        &lt;field name="name"/&gt;
+    &lt;/sheet&gt;
+&lt;/form&gt;
+</code></pre>
+<pre><code>from odoo import fields, models
+
+class TestAction(models.Model):
+    _name = "test.action"
+
+    name = fields.Char()
+
+    def action_do_something(self):
+        for record in self:
+            record.name = "Something"
+        return True
+</code></pre>
+<p><strong>Constraints:</strong> how can we prevent users from entering incorrect data? For example, in our real estate module nothing prevents users from setting a negative expected price.</p>
+<pre><code>from odoo import fields, models, api
+from odoo.exceptions import ValidationError
+
+class EstateProperty(models.Model):
+    _name = "estate.property"
+
+    name = fields.Char("Name")
+    price = fields.Float("Price")
+    date = fields.Date("Date")
+
+    @api.constrains('price')
+    def _check_price(self):
+        for record in self:
+            if record.price &lt;= 0:
+                raise ValidationError("Price must be greater than 0!")
+
+    @api.constrains('price', 'date')
+    def _check_price_and_date(self):
+        for record in self:
+            if record.price &lt; 1000:
+                raise ValidationError("Price must be at least 1000!")
+            if not record.date:
+                raise ValidationError("Date is required!")
+</code></pre>
+<p><strong>Order field:</strong> The <code>_order</code> attribute takes a string containing a list of fields which will be used for sorting. It will be converted to an <a href="https://www.postgresql.org/docs/12/queries-order.html">order_by</a> clause in SQL. For example:</p>
+<pre><code>from odoo import fields, models
+
+class TestModel(models.Model):
+    _name = "test_model"
+    _description = "Test Model"
+    _order = "id desc"
+
+    description = fields.Char()
+</code></pre>
+<p>Our records are ordered by descending <code>id</code>, meaning the highest comes first.</p>
+<p><strong>stat buttons:</strong></p>
+<pre><code>partner_id = fields.Many2one("res.partner", string="Partner")
+description = fields.Char(related="partner_id.name")
+</code></pre>
+<pre><code>partner_id = fields.Many2one("res.partner", string="Partner")
+description = fields.Char(compute="_compute_description")
+
+@api.depends("partner_id.name")
+def _compute_description(self):
+    for record in self:
+        record.description = record.partner_id.name
+</code></pre>
+<p><strong>search:</strong></p>
+<pre><code>&lt;search string="Test"&gt;
+    &lt;field name="description" string="Name and description"
+           filter_domain="['|', ('name', 'ilike', self), ('description', 'ilike', self)]"/&gt;
+&lt;/search&gt;
+</code></pre>
+<p><strong>i want to set up value from relationship to another field:</strong></p>
+<pre><code>partner_id = fields.Many2one("res.partner", string="Partner")
+description = fields.Char(related="partner_id.name")
+</code></pre>
+<pre><code>partner_id = fields.Many2one("res.partner", string="Partner")
+description = fields.Char(compute="_compute_description")
+
+@api.depends("partner_id.name")
+def _compute_description(self):
+    for record in self:
+        record.description = record.partner_id.name
+        
+</code></pre>
+<p><strong>odoo crud operation:</strong></p>
+<pre><code>from odoo import fields, models
+
+class TestModel(models.Model):
+    _name = "test_model"
+    _description = "Test Model"
+
+    ...
+
+    @api.model
+    def create(self, vals_list):
+        # Do some business logic, modify vals...
+        ...
+        # Then call super to execute the parent method
+        return super().create(vals_list)
+</code></pre>
+<p><strong>Inherit from model:</strong></p>
+<pre><code>from odoo import fields, models
+
+class InheritedModel(models.Model):
+    _inherit = ["inherited.model"]
+
+    new_field = fields.Char(string="New Field")
+</code></pre>
+<pre><code>&lt;record id="inherited_model_view_form" model="ir.ui.view"&gt;
+    &lt;field name="name"&gt;inherited.model.form.inherit.test&lt;/field&gt;
+    &lt;field name="model"&gt;inherited.model&lt;/field&gt;
+    &lt;field name="inherit_id" ref="inherited.inherited_model_view_form"/&gt;
+    &lt;field name="arch" type="xml"&gt;
+        &lt;!-- find field description and add the field new_field after it --&gt;
+        &lt;xpath expr="//field[@name='description']" position="after"&gt;
+          &lt;field name="new_field"/&gt;
+        &lt;/xpath&gt;
+        &lt;!-- Modify existing field --&gt;  
+		&lt;xpath  expr="//field[@name='description']"  position="attributes"&gt;  
+			&lt;attribute  name="readonly"&gt;1&lt;/attribute&gt;  
+			&lt;attribute  name="string"&gt;New Description&lt;/attribute&gt;  
+		&lt;/xpath&gt;
+    &lt;/field&gt;
+&lt;/record&gt;
+</code></pre>
+<p><strong>kanban view:</strong></p>
+<pre><code>&lt;kanban&gt;
+    &lt;templates&gt;
+        &lt;t t-name="card"&gt;
+            &lt;div&gt;
+                &lt;field name="name"/&gt;
+            &lt;/div&gt;
+        &lt;/t&gt;
+    &lt;/templates&gt;
+&lt;/kanban&gt;
+</code></pre>
+<p><strong>If we want to show element conditionally</strong></p>
+<pre><code>&lt;kanban&gt;
+    &lt;field name="state"/&gt;
+    &lt;templates&gt;
+        &lt;t t-name="card"&gt;
+            &lt;div&gt;
+                &lt;field name="name"/&gt;
+                &lt;div t-if="record.state.raw_value == 'new'"&gt;
+                    This is new!
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/t&gt;
+    &lt;/templates&gt;
+&lt;/kanban&gt;
+</code></pre>
+</div>
+</body>
+
+</html>
