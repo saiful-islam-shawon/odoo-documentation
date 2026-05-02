@@ -1,0 +1,133 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome file</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="systech-documentation">systech documentation</h1>
+<p><strong>I can inherit any field which was connected with another module</strong></p>
+<pre><code>district_id = fields.Many2one(
+  'res.district',
+  related="recipient_name_id.district_id",
+  store=True,
+  string="District",
+  # domain="[('thana_id','=',thana_id)]",
+  index=True
+)
+</code></pre>
+<p><strong>set up default login user</strong></p>
+<pre><code>sales_person  =  fields.Many2one('res.users',string="Sales Person", tracking=True, default=lambda  self: self.env.user)
+</code></pre>
+<p><strong>add width in xml</strong></p>
+<pre><code>&lt;list editable="bottom"&gt;
+    &lt;field name="product_id" width="100"/&gt;
+    &lt;field name="amount" width="100"/&gt;
+    &lt;field name="qty" width="100"/&gt;
+    &lt;field name="per_unit_id" width="100"/&gt;
+&lt;/list&gt;
+</code></pre>
+<p><strong>options:</strong><br>
+<code>options</code> is used to <strong>control the behavior and UI</strong> of a Many2one field. Here’s a full breakdown:<br>
+1: inside <a href="http://models.py">models.py</a></p>
+<pre><code>recipient_name_id  =  fields.Many2one('res.partner', string="Recipient Name", tracking=True, store=True)
+</code></pre>
+<p>2: inside <a href="http://views.py">views.py</a></p>
+<pre><code>&lt;field name="recipient_name_id"
+       options="{
+           'no_open': True,
+           'no_create': True,
+           'no_quick_create': True,
+           'no_create_edit': True
+       }"/&gt;
+</code></pre>
+<p><strong>one2may :</strong><br>
+Step 1: Child Model (must have Many2one back-reference)</p>
+<pre><code># models/book_list.py
+from odoo import models, fields
+
+class BookList(models.Model):
+    _name = 'book.list'
+    _description = 'Book List'
+
+    # ✅ Many2one pointing back to parent
+    bookmark_id = fields.Many2one(
+        'zc.bookmark.history',
+        string="Bookmark",
+        ondelete='cascade'  # delete lines when parent deleted
+    )
+
+    product_id = fields.Many2one('product.product', string="Product")
+    amount = fields.Float(string="Amount")
+    qty = fields.Float(string="Quantity")
+    per_unit_id = fields.Many2one('uom.uom', string="Per Unit")
+</code></pre>
+<p>Step 2: Parent Model (One2many field)</p>
+<pre><code># models/zc_bookmark_history.py
+from odoo import models, fields
+
+class ZcBookmarkHistory(models.Model):
+   _name = 'zc.bookmark.history'
+   _description = 'Bookmark History'
+
+   name = fields.Char(string="Name")
+   status = fields.Selection([
+       ('draft', 'Draft'),
+       ('validated', 'Validated'),
+   ], default='draft')
+
+   # ✅ One2many field
+   book_line_ids = fields.One2many(
+       'book.list',        # child model name
+       'bookmark_id',      # Many2one field in child model
+       string="Books"
+   )
+</code></pre>
+<p>Step 3: XML View</p>
+<pre><code>&lt;form&gt;
+    &lt;header&gt;
+        &lt;button name="action_validated"
+                string="Validate"
+                type="object"
+                invisible="status == 'validated'"/&gt;
+        &lt;field name="status" widget="statusbar"/&gt;
+    &lt;/header&gt;
+    &lt;sheet&gt;
+        &lt;group&gt;
+            &lt;field name="name"/&gt;
+        &lt;/group&gt;
+
+        &lt;notebook&gt;
+            &lt;page name="book_page" string="Books"&gt;
+                &lt;!-- ✅ One2many shown as editable list --&gt;
+                &lt;field name="book_line_ids"&gt;
+                    &lt;list editable="bottom"&gt;
+                        &lt;field name="product_id"
+                               readonly="parent.status == 'validated'"/&gt;
+                        &lt;field name="amount"/&gt;
+                        &lt;field name="qty"/&gt;
+                        &lt;field name="per_unit_id"/&gt;
+                    &lt;/list&gt;
+                &lt;/field&gt;
+            &lt;/page&gt;
+        &lt;/notebook&gt;
+    &lt;/sheet&gt;
+&lt;/form&gt;
+</code></pre>
+<pre><code>your_module/
+├── models/
+│   ├── __init__.py          ← import both models
+│   ├── zc_bookmark_history.py   ← parent model
+│   └── book_list.py             ← child model
+├── views/
+│   └── zc_bookmark_history_view.xml
+└── __manifest__.py
+</code></pre>
+</div>
+</body>
+
+</html>
