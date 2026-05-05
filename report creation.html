@@ -1,0 +1,101 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome file</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="report-creation">Report creation</h1>
+<p><strong>step:1</strong><br>
+create reports/report.xml</p>
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;odoo&gt;
+
+    &lt;record id="paperformat_bookmark_history" model="report.paperformat"&gt;
+        &lt;field name="name"&gt;Bookmark History Paper&lt;/field&gt;
+        &lt;field name="default" eval="False" /&gt;
+        &lt;field name="format"&gt;A4&lt;/field&gt;
+        &lt;field name="margin_top"&gt;5&lt;/field&gt;     &lt;!-- এখানে কমাও --&gt;
+        &lt;field name="margin_bottom"&gt;10&lt;/field&gt;
+        &lt;field name="margin_left"&gt;10&lt;/field&gt;
+        &lt;field name="margin_right"&gt;10&lt;/field&gt;
+        &lt;field name="header_line" eval="False" /&gt;
+        &lt;field name="header_spacing"&gt;5&lt;/field&gt;
+    &lt;/record&gt;
+
+    &lt;!-- Report Action --&gt;
+    &lt;record id="action_report_bookmark_history" model="ir.actions.report"&gt;
+        &lt;field name="name"&gt;Bookmark History Report&lt;/field&gt;
+        &lt;field name="model"&gt;zc.bookmark.history&lt;/field&gt;
+        &lt;field name="report_type"&gt;qweb-pdf&lt;/field&gt;
+        &lt;field name="report_name"&gt;zencore_bookmark_history.report_bookmark_history_template&lt;/field&gt;
+        &lt;field name="report_file"&gt;zencore_bookmark_history.report_bookmark_history_template&lt;/field&gt;
+        &lt;field name="paperformat_id" ref="zencore_bookmark_history.paperformat_bookmark_history" /&gt;
+        &lt;field name="binding_model_id" ref="model_zc_bookmark_history" /&gt;
+        &lt;field name="binding_type"&gt;report&lt;/field&gt;
+    &lt;/record&gt;
+
+    &lt;!-- Report Template --&gt;
+    &lt;template id="report_bookmark_history_template"&gt;
+        &lt;t t-call="web.html_container"&gt;
+            &lt;t t-foreach="docs" t-as="doc"&gt;
+                &lt;t t-call="web.basic_layout"&gt;
+                    &lt;div class="page"&gt;
+                        &lt;div class="row mb-4"&gt;
+                            &lt;div class="col-6"&gt;
+                                &lt;p&gt;hello&lt;/p&gt;
+                                &lt;p&gt;hello&lt;/p&gt;
+                                &lt;p&gt;hello&lt;/p&gt;
+                                &lt;p&gt;hello&lt;/p&gt;
+                            &lt;/div&gt;
+                            &lt;div class="col-6"&gt;
+                                &lt;p&gt;hello&lt;/p&gt;
+                                &lt;p&gt;hello&lt;/p&gt;
+                                &lt;p&gt;hello&lt;/p&gt;
+                                &lt;p&gt;hello&lt;/p&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                        &lt;h1&gt;Hello my name is shawon&lt;/h1&gt;
+                        &lt;h2&gt;Bookmark History Report&lt;/h2&gt;
+                        &lt;div class="row"&gt;
+                            &lt;div class="col-6"&gt;
+                                &lt;strong&gt;Name: &lt;/strong&gt;
+                                &lt;span t-field="doc.recipient_name_id" /&gt;
+                            &lt;/div&gt;
+                            &lt;div class="col-6"&gt;
+                                &lt;strong&gt;Date: &lt;/strong&gt;
+                                &lt;span t-field="doc.date" /&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/t&gt;
+            &lt;/t&gt;
+        &lt;/t&gt;
+    &lt;/template&gt;
+
+&lt;/odoo&gt;
+
+</code></pre>
+<p><strong>want to add button</strong><br>
+create button</p>
+<pre><code>&lt;!-- print button --&gt;
+&lt;button name="action_print_report"
+    string="Print"
+    type="object"
+    class="btn-primary"/&gt;
+</code></pre>
+<p>add button action in model</p>
+<pre><code>#print button
+def action_print_report(self):
+    return self.env.ref(
+        'zencore_bookmark_history.action_report_bookmark_history'
+    ).report_action(self)
+</code></pre>
+</div>
+</body>
+
+</html>
