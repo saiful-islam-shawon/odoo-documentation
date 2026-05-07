@@ -1,0 +1,2 @@
+# odoo shortcurt module creation
+./odoo-bin scaffold module_name addons_path
