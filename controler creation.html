@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome file</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="controler-creation">controler creation</h1>
+<p>step 1: create controlers folder<br>
+controlers/init.py<br>
+controlers/controler.py</p>
+<pre><code>from odoo import http
+from odoo.http import request
+
+class ProductCatalogControler(http.Controller):
+  @http.route('/product/catalog/', auth='public', website=True)
+  def product_catalog(self, **kwargs):
+    products = request.env['product.template'].search([])
+    return request.render('practice_module.product_catalog_template', {'products': products})
+</code></pre>
+<p>step 2: tell global <a href="http://init.py">init.py</a></p>
+<pre><code>from . import  controlers
+</code></pre>
+<p>step 3: create xml file<br>
+views/product_template.xml</p>
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;odoo&gt;
+  &lt;template id="product_catalog_template" name="product catalog"&gt;
+    &lt;t t-call="website.layout"&gt;
+      &lt;div class="container"&gt;
+          &lt;h1&gt;Product Catalog&lt;/h1&gt;
+          &lt;ul&gt;
+              &lt;t t-foreach="products" t-as="product"&gt;
+                  &lt;h3&gt;&lt;t t-esc="product.name"&gt;&lt;/t&gt;&lt;/h3&gt;
+                  &lt;p&gt;Price &lt;t t-esc="product.list_price"&gt;&lt;/t&gt; $&lt;/p&gt;
+              &lt;/t&gt;
+          &lt;/ul&gt;
+      &lt;/div&gt;
+    &lt;/t&gt;
+  &lt;/template&gt;
+&lt;/odoo&gt;
+</code></pre>
+<p>step 4: create scss<br>
+static/src/scss/product_template.scss</p>
+<pre><code>.container{
+    margin-top: 50px;
+}
+
+h1{
+    text-align: center;
+    color: rgb(4, 73, 73);
+}
+
+ul{
+    list-style-type: none;
+    padding: 0;
+}
+
+li{
+    border-bottom: 1px solid rgb(146, 140, 140);
+    padding: 10px 0;
+}
+</code></pre>
+<p>step 5: give all access in <a href="http://manifest.py">manifest.py</a> file</p>
+</div>
+</body>
+
+</html>
