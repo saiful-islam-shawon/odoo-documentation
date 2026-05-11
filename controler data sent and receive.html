@@ -1,0 +1,144 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome file</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="controler-data-sent-and-receive">controler data sent and receive</h1>
+<p>step 1: <a href="http://controler.py">controler.py</a></p>
+<pre><code>from odoo import http
+from odoo.http import request
+
+
+class ProductFormController(http.Controller):
+
+  @http.route('/product/form',type='http',auth='public',website=True,methods=['GET']
+  )
+  def product_form(self, success=None, **kwargs):
+
+      products = request.env['product.product'].sudo().search([])
+
+      values = {
+          'products': products,
+          'success': success,
+      }
+
+      return request.render('practice_module.product_form_template',values)
+
+  @http.route('/product/submit',type='http',auth='public',website=True,methods=['POST'],csrf=True)
+  def submit_inquiry(self, **post):
+
+      product_id = int(post.get('product_id', 0))
+
+      request.env['product.inquiry'].sudo().create({
+          'name': post.get('name'),
+          'email': post.get('email'),
+          'product_id': product_id,
+          'message': post.get('message'),
+      })
+
+      return request.redirect('/product/form?success=1')
+</code></pre>
+<p>step 2: xml file</p>
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;odoo&gt;
+
+  &lt;template id="product_form_template" name="Product Inquiry Form"&gt;
+
+    &lt;t t-call="website.layout"&gt;
+
+        &lt;div class="container mt-5"&gt;
+
+            &lt;h1 class="mb-4"&gt;Product Inquiry&lt;/h1&gt;
+
+            &lt;t t-if="success"&gt;
+                &lt;div class="alert alert-success" role="alert"&gt;
+                    Inquiry submitted successfully.
+                &lt;/div&gt;
+            &lt;/t&gt;
+
+            &lt;form action="/product/submit"
+                  method="post"
+                  class="o_website_form"&gt;
+
+                &lt;!-- CSRF Token --&gt;
+                &lt;input type="hidden"
+                       name="csrf_token"
+                       t-att-value="request.csrf_token()"/&gt;
+
+                &lt;!-- Name --&gt;
+                &lt;div class="mb-3"&gt;
+                    &lt;label class="form-label"&gt;Name&lt;/label&gt;
+
+                    &lt;input type="text"
+                           name="name"
+                           required="required"
+                           class="form-control"/&gt;
+                &lt;/div&gt;
+
+                &lt;!-- Email --&gt;
+                &lt;div class="mb-3"&gt;
+                    &lt;label class="form-label"&gt;Email&lt;/label&gt;
+
+                    &lt;input type="email"
+                           name="email"
+                           required="required"
+                           class="form-control"/&gt;
+                &lt;/div&gt;
+
+                &lt;!-- Product --&gt;
+                &lt;div class="mb-3"&gt;
+                    &lt;label class="form-label"&gt;Product&lt;/label&gt;
+
+                    &lt;select name="product_id"
+                            required="required"
+                            class="form-select"&gt;
+
+                        &lt;option value=""&gt;
+                            Choose a product
+                        &lt;/option&gt;
+
+                        &lt;t t-foreach="products" t-as="product"&gt;
+
+                            &lt;option t-att-value="product.id"&gt;
+                                &lt;t t-esc="product.display_name"/&gt;
+                            &lt;/option&gt;
+
+                        &lt;/t&gt;
+
+                    &lt;/select&gt;
+                &lt;/div&gt;
+
+                &lt;!-- Message --&gt;
+                &lt;div class="mb-3"&gt;
+                    &lt;label class="form-label"&gt;Message&lt;/label&gt;
+
+                    &lt;textarea name="message"
+                              rows="4"
+                              class="form-control"/&gt;
+                &lt;/div&gt;
+
+                &lt;button type="submit"
+                        class="btn btn-primary"&gt;
+                    Submit Inquiry
+                &lt;/button&gt;
+
+            &lt;/form&gt;
+
+        &lt;/div&gt;
+
+    &lt;/t&gt;
+
+  &lt;/template&gt;
+
+&lt;/odoo&gt;
+</code></pre>
+</div>
+</body>
+
+</html>
