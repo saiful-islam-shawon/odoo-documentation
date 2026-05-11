@@ -1,0 +1,81 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome file</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="qweb-language">qweb language</h1>
+<p>#: set variable and value as well as display that variable value</p>
+<pre><code>&lt;t t-set="company_name" t-value="o.company_id.name"/&gt;  
+&lt;p&gt;Company Name: &lt;t t-esc="company_name"/&gt;&lt;/p&gt;
+</code></pre>
+<p>#: loop</p>
+<pre><code>&lt;t t-foreach="o.invoice_line_ids" t-as="line"&gt;  
+    &lt;tr&gt;  
+        &lt;td&gt;&lt;t t-esc="line.product_id.name"/&gt;&lt;/td&gt;  
+        &lt;td&gt;&lt;t t-esc="line.quantity"/&gt;&lt;/td&gt;  
+        &lt;td&gt;&lt;t t-esc="line.price_unit"/&gt;&lt;/td&gt;  
+    &lt;/tr&gt;  
+&lt;/t&gt;
+</code></pre>
+<p>#: if, elif, and else</p>
+<pre><code>&lt;t t-if="o.state == 'draft'"&gt;  
+    &lt;p&gt;Invoice is in draft state.&lt;/p&gt;  
+&lt;t t-elif="o.state == 'open'"&gt;  
+    &lt;p&gt;Invoice is open.&lt;/p&gt;  
+&lt;t t-else=""&gt;  
+    &lt;p&gt;Invoice is in another state.&lt;/p&gt;  
+&lt;/t&gt;
+</code></pre>
+<p>#: include other template</p>
+<pre><code>&lt;t t-call="account.report_invoice_footer"/&gt;
+</code></pre>
+<p>#:display value<br>
+ex 1:</p>
+<pre><code>&lt;p&gt;Escaped Content: &lt;t t-esc="o.name"/&gt;&lt;/p&gt;
+</code></pre>
+<p>ex 2:</p>
+<pre><code>&lt;t t-out="o.description_html"/&gt;
+</code></pre>
+<p>#: Dynamic attribute<br>
+ex 1:<br>
+<code>&lt;img t-att-src="'/web/image/product.product/' + str(o.product_id.id) + '/image_1920'"/&gt;</code><br>
+ex 2:<br>
+<code>&lt;a t-attf-href="/my_url/{{ path }}"&gt;Link&lt;/a&gt;</code><br>
+ex 3: set value<br>
+<code>&lt;option t-att-value="product.id"&gt;</code></p>
+<p>#:  Formatting Dates and Numbers</p>
+<pre><code>&lt;p&gt;Invoice Date: &lt;t t-esc="formatDate(o.date_invoice, 'dd MMMM yyyy')"/&gt;&lt;/p&gt;  
+&lt;p&gt;Total Amount: &lt;t t-esc="formatLang(o.amount_total, currency_obj=o.currency_id)"/&gt;&lt;/p&gt;
+</code></pre>
+<p>#: Debugging in Qweb<br>
+ex: 1</p>
+<pre><code>&lt;t t-debug="o.partner_id.name"/&gt;
+</code></pre>
+<p>ex: 2<br>
+<code>&lt;t t-debug="o.partner_id.name"/&gt;</code></p>
+<p>#: Multi language support<br>
+<code>&lt;t t-debug="o.partner_id.name"/&gt;</code></p>
+<p>#: Inheriting and extending template</p>
+<pre><code>&lt;template id="report_invoice_inherit" inherit_id="account.report_invoice_document"&gt;  
+    &lt;xpath expr="//div[@class='header']" position="after"&gt;  
+        &lt;p&gt;This is additional content added to the invoice report.&lt;/p&gt;  
+    &lt;/xpath&gt;  
+&lt;/template&gt;
+</code></pre>
+<p>#: overriding template</p>
+<pre><code>&lt;template id="report_invoice"&gt;  
+    &lt;!-- Custom content --&gt;  
+&lt;/template&gt;
+</code></pre>
+<p>#: learning from<br>
+<a href="https://www.cybrosys.com/blog/what-is-qweb-templates-and-key-features-of-qweb-in-odoo-18">https://www.cybrosys.com/blog/what-is-qweb-templates-and-key-features-of-qweb-in-odoo-18</a></p>
+</div>
+</body>
+
+</html>
