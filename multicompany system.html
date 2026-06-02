@@ -1,0 +1,42 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome file</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="multi-company-system">Multi-Company system</h1>
+<p>1: creat a company from setting / company<br>
+2: automatictly different different company different invoice, journal, report create hobe<br>
+3: now we want to create model and this model should give access of company<br>
+model</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">from</span> odoo <span class="token keyword">import</span> models<span class="token punctuation">,</span> fields
+
+<span class="token keyword">class</span> <span class="token class-name">PracticeModel</span><span class="token punctuation">(</span>models<span class="token punctuation">.</span>Model<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    _name <span class="token operator">=</span> <span class="token string">"practice.model"</span>
+    _description <span class="token operator">=</span> <span class="token string">"Practice Model"</span>
+
+    name <span class="token operator">=</span> fields<span class="token punctuation">.</span>Char<span class="token punctuation">(</span><span class="token string">"Name"</span><span class="token punctuation">)</span>
+    company_id <span class="token operator">=</span> fields<span class="token punctuation">.</span>Many2one<span class="token punctuation">(</span>
+        <span class="token string">"res.company"</span><span class="token punctuation">,</span>
+        string<span class="token operator">=</span><span class="token string">"Company"</span><span class="token punctuation">,</span>
+        default<span class="token operator">=</span><span class="token keyword">lambda</span> self<span class="token punctuation">:</span> self<span class="token punctuation">.</span>env<span class="token punctuation">.</span>company<span class="token punctuation">,</span>
+        index<span class="token operator">=</span><span class="token boolean">True</span>
+    <span class="token punctuation">)</span>
+</code></pre>
+<p>Record Rule</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token operator">&lt;</span>record <span class="token builtin">id</span><span class="token operator">=</span><span class="token string">"rule_practice_model_multi_company"</span> model<span class="token operator">=</span><span class="token string">"ir.rule"</span><span class="token operator">&gt;</span>
+    <span class="token operator">&lt;</span>field name<span class="token operator">=</span><span class="token string">"name"</span><span class="token operator">&gt;</span>Practice Model<span class="token punctuation">:</span> multi<span class="token operator">-</span>company<span class="token operator">&lt;</span><span class="token operator">/</span>field<span class="token operator">&gt;</span>
+    <span class="token operator">&lt;</span>field name<span class="token operator">=</span><span class="token string">"model_id"</span> ref<span class="token operator">=</span><span class="token string">"practice_module.model_practice_model"</span><span class="token operator">/</span><span class="token operator">&gt;</span>
+    <span class="token operator">&lt;</span>field name<span class="token operator">=</span><span class="token string">"domain_force"</span><span class="token operator">&gt;</span><span class="token punctuation">[</span><span class="token punctuation">(</span><span class="token string">'company_id'</span><span class="token punctuation">,</span> <span class="token string">'in'</span><span class="token punctuation">,</span> company_ids<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token operator">&lt;</span><span class="token operator">/</span>field<span class="token operator">&gt;</span>
+    <span class="token operator">&lt;</span>field name<span class="token operator">=</span><span class="token string">"groups"</span> <span class="token builtin">eval</span><span class="token operator">=</span><span class="token string">"[(4, ref('base.group_user'))]"</span><span class="token operator">/</span><span class="token operator">&gt;</span>
+<span class="token operator">&lt;</span><span class="token operator">/</span>record<span class="token operator">&gt;</span>
+</code></pre>
+</div>
+</body>
+
+</html>
