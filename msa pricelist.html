@@ -1,0 +1,226 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome file</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="msa-pricelist">MSA Pricelist</h1>
+<p><strong>dynami status and mapped method uses</strong></p>
+<pre class=" language-python"><code class="prism  language-python">@api<span class="token punctuation">.</span>depends<span class="token punctuation">(</span><span class="token string">'approve_user_ids.approve'</span><span class="token punctuation">,</span> <span class="token string">'approve_user_ids.reject'</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">_status_change</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">for</span> rec <span class="token keyword">in</span> self<span class="token punctuation">:</span>
+        users <span class="token operator">=</span> rec<span class="token punctuation">.</span>approve_user_ids
+
+        <span class="token keyword">if</span> <span class="token operator">not</span> users<span class="token punctuation">:</span>
+            rec<span class="token punctuation">.</span>status <span class="token operator">=</span> <span class="token string">'draft'</span>
+
+        <span class="token keyword">elif</span> <span class="token operator">not</span> <span class="token builtin">any</span><span class="token punctuation">(</span>users<span class="token punctuation">.</span>mapped<span class="token punctuation">(</span><span class="token string">'reject'</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">and</span> <span class="token operator">not</span> <span class="token builtin">any</span><span class="token punctuation">(</span>users<span class="token punctuation">.</span>mapped<span class="token punctuation">(</span><span class="token string">'approve'</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">and</span> <span class="token operator">not</span> rec<span class="token punctuation">.</span>pending_update<span class="token punctuation">:</span>
+            rec<span class="token punctuation">.</span>status <span class="token operator">=</span> <span class="token string">'draft'</span>
+
+        <span class="token keyword">elif</span> <span class="token builtin">any</span><span class="token punctuation">(</span>users<span class="token punctuation">.</span>mapped<span class="token punctuation">(</span><span class="token string">'reject'</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+            rec<span class="token punctuation">.</span>status <span class="token operator">=</span> <span class="token string">'reject'</span>
+
+        <span class="token keyword">elif</span> <span class="token builtin">all</span><span class="token punctuation">(</span>users<span class="token punctuation">.</span>mapped<span class="token punctuation">(</span><span class="token string">'approve'</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+            rec<span class="token punctuation">.</span>status <span class="token operator">=</span> <span class="token string">'approved'</span>
+
+        <span class="token keyword">else</span><span class="token punctuation">:</span>
+            rec<span class="token punctuation">.</span>status <span class="token operator">=</span> <span class="token string">'pending'</span>
+</code></pre>
+<p><strong>Submit বাটনে ক্লিক করলে প্রতিটি ব্যবহারকারীর জন্য একটি টু-ডু (To-do) তালিকা তৈরি করা</strong></p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token comment"># Submit button action</span>
+<span class="token keyword">def</span> <span class="token function">action_submit</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">for</span> rec <span class="token keyword">in</span> self<span class="token punctuation">:</span>
+        <span class="token keyword">if</span> <span class="token builtin">len</span><span class="token punctuation">(</span>rec<span class="token punctuation">.</span>approve_user_ids<span class="token punctuation">)</span> <span class="token operator">&lt;</span> <span class="token number">3</span><span class="token punctuation">:</span>
+            <span class="token keyword">raise</span> ValidationError<span class="token punctuation">(</span><span class="token string">"You have to add minimum 3 users"</span><span class="token punctuation">)</span>
+
+        <span class="token keyword">if</span> <span class="token builtin">len</span><span class="token punctuation">(</span>rec<span class="token punctuation">.</span>item_ids<span class="token punctuation">)</span> <span class="token operator">&lt;</span> <span class="token number">1</span><span class="token punctuation">:</span>
+            <span class="token keyword">raise</span> ValidationError<span class="token punctuation">(</span><span class="token string">"You have to add at least one product"</span><span class="token punctuation">)</span>
+
+        rec<span class="token punctuation">.</span>pending_update <span class="token operator">=</span> <span class="token boolean">True</span>
+        rec<span class="token punctuation">.</span>status <span class="token operator">=</span> <span class="token string">'pending'</span>
+
+        <span class="token comment"># Activity type (To-Do)</span>
+        activity_type <span class="token operator">=</span> self<span class="token punctuation">.</span>env<span class="token punctuation">.</span>ref<span class="token punctuation">(</span><span class="token string">'mail.mail_activity_data_todo'</span><span class="token punctuation">)</span>
+
+        <span class="token comment"># Create activity for each approver</span>
+        <span class="token keyword">for</span> approver <span class="token keyword">in</span> rec<span class="token punctuation">.</span>approve_user_ids<span class="token punctuation">:</span>
+            rec<span class="token punctuation">.</span>activity_schedule<span class="token punctuation">(</span>
+                activity_type_id<span class="token operator">=</span>activity_type<span class="token punctuation">.</span><span class="token builtin">id</span><span class="token punctuation">,</span>
+                summary<span class="token operator">=</span><span class="token string">'To-Do'</span><span class="token punctuation">,</span>
+                note<span class="token operator">=</span><span class="token string">'Please review the Pricelist'</span><span class="token punctuation">,</span>
+                date_deadline<span class="token operator">=</span>fields<span class="token punctuation">.</span>Date<span class="token punctuation">.</span>today<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                user_id<span class="token operator">=</span>approver<span class="token punctuation">.</span>user_id<span class="token punctuation">.</span><span class="token builtin">id</span><span class="token punctuation">,</span>
+            <span class="token punctuation">)</span>
+</code></pre>
+<p><strong>Approve অথবা Reject বাটনে ক্লিক করলে সংশ্লিষ্ট ব্যবহারকারীর approve ফিল্ডটি true হয়ে যাবে এবং সেই অনুযায়ী স্ট্যাটাস আপডেট হবে।</strong></p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token comment"># Approve and Reject button actions</span>
+<span class="token keyword">def</span> <span class="token function">action_approve</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">for</span> rec <span class="token keyword">in</span> self<span class="token punctuation">:</span>
+        current_user <span class="token operator">=</span> self<span class="token punctuation">.</span>env<span class="token punctuation">.</span>user
+
+        approver <span class="token operator">=</span> rec<span class="token punctuation">.</span>approve_user_ids<span class="token punctuation">.</span>filtered<span class="token punctuation">(</span>
+            <span class="token keyword">lambda</span> a<span class="token punctuation">:</span> a<span class="token punctuation">.</span>user_id<span class="token punctuation">.</span><span class="token builtin">id</span> <span class="token operator">==</span> current_user<span class="token punctuation">.</span><span class="token builtin">id</span>
+        <span class="token punctuation">)</span>
+
+        <span class="token keyword">if</span> <span class="token operator">not</span> approver<span class="token punctuation">:</span>
+            <span class="token keyword">raise</span> ValidationError<span class="token punctuation">(</span><span class="token string">"You are not in the approver list!"</span><span class="token punctuation">)</span>
+
+        approver<span class="token punctuation">.</span>sudo<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>write<span class="token punctuation">(</span><span class="token punctuation">{</span>
+            <span class="token string">'approve'</span><span class="token punctuation">:</span> <span class="token boolean">True</span><span class="token punctuation">,</span>
+            <span class="token string">'reject'</span><span class="token punctuation">:</span> <span class="token boolean">False</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span>
+
+
+<span class="token keyword">def</span> <span class="token function">action_reject</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">for</span> rec <span class="token keyword">in</span> self<span class="token punctuation">:</span>
+        current_user <span class="token operator">=</span> self<span class="token punctuation">.</span>env<span class="token punctuation">.</span>user
+
+        approver <span class="token operator">=</span> rec<span class="token punctuation">.</span>approve_user_ids<span class="token punctuation">.</span>filtered<span class="token punctuation">(</span>
+            <span class="token keyword">lambda</span> a<span class="token punctuation">:</span> a<span class="token punctuation">.</span>user_id<span class="token punctuation">.</span><span class="token builtin">id</span> <span class="token operator">==</span> current_user<span class="token punctuation">.</span><span class="token builtin">id</span>
+        <span class="token punctuation">)</span>
+
+        <span class="token keyword">if</span> <span class="token operator">not</span> approver<span class="token punctuation">:</span>
+            <span class="token keyword">raise</span> ValidationError<span class="token punctuation">(</span><span class="token string">"You are not in the approver list!"</span><span class="token punctuation">)</span>
+
+        approver<span class="token punctuation">.</span>sudo<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>write<span class="token punctuation">(</span><span class="token punctuation">{</span>
+            <span class="token string">'approve'</span><span class="token punctuation">:</span> <span class="token boolean">False</span><span class="token punctuation">,</span>
+            <span class="token string">'reject'</span><span class="token punctuation">:</span> <span class="token boolean">True</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre>
+<p><strong>Price List মডিউলে সব রেকর্ড দেখা যাবে, কিন্তু সিস্টেমের অন্যান্য জায়গায় শুধুমাত্র Approved status থাকা রেকর্ডগুলোই প্রদর্শিত হবে। Approved না হলে সেই রেকর্ডগুলো অন্য কোথাও দেখানো হবে না।</strong></p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token comment"># Active check / Search override</span>
+@api<span class="token punctuation">.</span>model
+<span class="token keyword">def</span> <span class="token function">_search</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> domain<span class="token punctuation">,</span> offset<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">,</span> limit<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span> order<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span> <span class="token operator">**</span>kwargs<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment"># system/superuser হলে block করবো না</span>
+    <span class="token keyword">if</span> self<span class="token punctuation">.</span>env<span class="token punctuation">.</span>su<span class="token punctuation">:</span>
+        <span class="token keyword">return</span> <span class="token builtin">super</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>_search<span class="token punctuation">(</span>domain<span class="token punctuation">,</span> offset<span class="token operator">=</span>offset<span class="token punctuation">,</span> limit<span class="token operator">=</span>limit<span class="token punctuation">,</span> order<span class="token operator">=</span>order<span class="token punctuation">,</span> <span class="token operator">**</span>kwargs<span class="token punctuation">)</span>
+
+    <span class="token comment"># pricelist নিজের view তে সব দেখাবে</span>
+    <span class="token keyword">if</span> self<span class="token punctuation">.</span>env<span class="token punctuation">.</span>context<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">'show_all_pricelist'</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> <span class="token builtin">super</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>_search<span class="token punctuation">(</span>domain<span class="token punctuation">,</span> offset<span class="token operator">=</span>offset<span class="token punctuation">,</span> limit<span class="token operator">=</span>limit<span class="token punctuation">,</span> order<span class="token operator">=</span>order<span class="token punctuation">,</span> <span class="token operator">**</span>kwargs<span class="token punctuation">)</span>
+
+    <span class="token comment"># active_test=False হলে system/internal call — block করবো না</span>
+    <span class="token keyword">if</span> <span class="token operator">not</span> kwargs<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">'active_test'</span><span class="token punctuation">,</span> <span class="token boolean">True</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> <span class="token builtin">super</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>_search<span class="token punctuation">(</span>domain<span class="token punctuation">,</span> offset<span class="token operator">=</span>offset<span class="token punctuation">,</span> limit<span class="token operator">=</span>limit<span class="token punctuation">,</span> order<span class="token operator">=</span>order<span class="token punctuation">,</span> <span class="token operator">**</span>kwargs<span class="token punctuation">)</span>
+
+    <span class="token comment"># শুধু approved status data দেখাবে</span>
+    domain <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">(</span><span class="token string">'status'</span><span class="token punctuation">,</span> <span class="token string">'='</span><span class="token punctuation">,</span> <span class="token string">'approved'</span><span class="token punctuation">)</span><span class="token punctuation">]</span> <span class="token operator">+</span> domain
+    <span class="token keyword">return</span> <span class="token builtin">super</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>_search<span class="token punctuation">(</span>domain<span class="token punctuation">,</span> offset<span class="token operator">=</span>offset<span class="token punctuation">,</span> limit<span class="token operator">=</span>limit<span class="token punctuation">,</span> order<span class="token operator">=</span>order<span class="token punctuation">,</span> <span class="token operator">**</span>kwargs<span class="token punctuation">)</span>
+</code></pre>
+<p><strong>স্ট্যাটাস পরিবর্তন হলে সিস্টেমে পরিষ্কারভাবে দেখানো হবে—কে পরিবর্তন করেছে, কার জন্য পরিবর্তন করেছে এবং কোন স্ট্যাটাসে পরিবর্তন করা হয়েছে।</strong></p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">def</span> <span class="token function">write</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> vals<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment"># approve দিলে reject false হবে</span>
+    <span class="token keyword">if</span> vals<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">'approve'</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        vals<span class="token punctuation">[</span><span class="token string">'reject'</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token boolean">False</span>
+
+    <span class="token comment"># reject দিলে approve false হবে</span>
+    <span class="token keyword">if</span> vals<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">'reject'</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        vals<span class="token punctuation">[</span><span class="token string">'approve'</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token boolean">False</span>
+
+    result <span class="token operator">=</span> <span class="token builtin">super</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>write<span class="token punctuation">(</span>vals<span class="token punctuation">)</span>
+
+    <span class="token comment"># status update trigger + chatter message</span>
+    <span class="token keyword">for</span> rec <span class="token keyword">in</span> self<span class="token punctuation">:</span>
+        <span class="token keyword">if</span> rec<span class="token punctuation">.</span>pricelist_id<span class="token punctuation">:</span>
+
+            <span class="token comment"># trigger status computation</span>
+            rec<span class="token punctuation">.</span>pricelist_id<span class="token punctuation">.</span>_status_change<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+            <span class="token comment"># Approve message</span>
+            <span class="token keyword">if</span> vals<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">'approve'</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+                rec<span class="token punctuation">.</span>pricelist_id<span class="token punctuation">.</span>message_post<span class="token punctuation">(</span>
+                    body<span class="token operator">=</span>Markup<span class="token punctuation">(</span>
+                        <span class="token string">"Approvers: &lt;b&gt;{approver}&lt;/b&gt;&lt;br/&gt;Approved By: &lt;b&gt;{user}&lt;/b&gt;"</span>
+                    <span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token builtin">format</span><span class="token punctuation">(</span>
+                        approver<span class="token operator">=</span>rec<span class="token punctuation">.</span>user_id<span class="token punctuation">.</span>name<span class="token punctuation">,</span>
+                        user<span class="token operator">=</span>self<span class="token punctuation">.</span>env<span class="token punctuation">.</span>user<span class="token punctuation">.</span>name<span class="token punctuation">,</span>
+                    <span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    message_type<span class="token operator">=</span><span class="token string">'notification'</span><span class="token punctuation">,</span>
+                    subtype_xmlid<span class="token operator">=</span><span class="token string">'mail.mt_note'</span><span class="token punctuation">,</span>
+                <span class="token punctuation">)</span>
+
+            <span class="token comment"># Reject message</span>
+            <span class="token keyword">elif</span> vals<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">'reject'</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+                rec<span class="token punctuation">.</span>pricelist_id<span class="token punctuation">.</span>message_post<span class="token punctuation">(</span>
+                    body<span class="token operator">=</span>Markup<span class="token punctuation">(</span>
+                        <span class="token string">"Approvers: &lt;b&gt;{reject}&lt;/b&gt;&lt;br/&gt;Rejected By: &lt;b&gt;{user}&lt;/b&gt;"</span>
+                    <span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token builtin">format</span><span class="token punctuation">(</span>
+                        reject<span class="token operator">=</span>rec<span class="token punctuation">.</span>user_id<span class="token punctuation">.</span>name<span class="token punctuation">,</span>
+                        user<span class="token operator">=</span>self<span class="token punctuation">.</span>env<span class="token punctuation">.</span>user<span class="token punctuation">.</span>name<span class="token punctuation">,</span>
+                    <span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    message_type<span class="token operator">=</span><span class="token string">'notification'</span><span class="token punctuation">,</span>
+                    subtype_xmlid<span class="token operator">=</span><span class="token string">'mail.mt_note'</span><span class="token punctuation">,</span>
+                <span class="token punctuation">)</span>
+
+    <span class="token keyword">return</span> result
+</code></pre>
+<p><strong>একজন ব্যবহারকারী শুধুমাত্র নিজের ডেটা পরিবর্তন করতে পারবে, অন্য কোনো ব্যবহারকারীর ডেটা পরিবর্তন করার অনুমতি থাকবে না।</strong></p>
+<pre class=" language-python"><code class="prism  language-python">@api<span class="token punctuation">.</span>onchange<span class="token punctuation">(</span><span class="token string">'approve'</span><span class="token punctuation">,</span> <span class="token string">'reject'</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">_onchange_approveAndreject</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>
+        <span class="token operator">not</span> self<span class="token punctuation">.</span>env<span class="token punctuation">.</span>user<span class="token punctuation">.</span>has_group<span class="token punctuation">(</span>
+            <span class="token string">'zencore_groups.group_zencore_clm_sales_manager'</span>
+        <span class="token punctuation">)</span>
+        <span class="token operator">and</span> self<span class="token punctuation">.</span>user_id<span class="token punctuation">.</span><span class="token builtin">id</span> <span class="token operator">!=</span> self<span class="token punctuation">.</span>env<span class="token punctuation">.</span>user<span class="token punctuation">.</span><span class="token builtin">id</span>
+    <span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">raise</span> ValidationError<span class="token punctuation">(</span><span class="token string">"You can't change another user's data"</span><span class="token punctuation">)</span>
+</code></pre>
+<p><strong>যেসব ব্যবহারকারী এই নির্দিষ্ট গ্রুপগুলোর অন্তর্ভুক্ত নয়, তাদেরকে সিস্টেমে অ্যাক্সেস করা যাবে না।</strong></p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">def</span> <span class="token function">_get_valid_user_domain</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    valid_groups <span class="token operator">=</span> <span class="token punctuation">[</span>
+        <span class="token string">'zencore_groups.group_zencore_clm_sales_manager'</span><span class="token punctuation">,</span>
+        <span class="token string">'zencore_groups.group_zencore_clm_salesperson'</span><span class="token punctuation">,</span>
+        <span class="token string">'zencore_groups.group_zencore_clm_ccm'</span><span class="token punctuation">,</span>
+        <span class="token string">'zencore_groups.group_zencore_clm_warehouse'</span><span class="token punctuation">,</span>
+        <span class="token string">'zencore_groups.group_zencore_clm_tdo'</span><span class="token punctuation">,</span>
+        <span class="token string">'zencore_groups.group_zencore_clm_finance'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span>
+
+    user_ids <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+
+    <span class="token keyword">for</span> group_xml_id <span class="token keyword">in</span> valid_groups<span class="token punctuation">:</span>
+        group <span class="token operator">=</span> self<span class="token punctuation">.</span>env<span class="token punctuation">.</span>ref<span class="token punctuation">(</span>group_xml_id<span class="token punctuation">,</span> raise_if_not_found<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">)</span>
+
+        <span class="token keyword">if</span> group<span class="token punctuation">:</span>
+            <span class="token comment"># res.groups থেকে SQL query করে user ids বের করা</span>
+            self<span class="token punctuation">.</span>env<span class="token punctuation">.</span>cr<span class="token punctuation">.</span>execute<span class="token punctuation">(</span>
+                <span class="token string">"SELECT uid FROM res_groups_users_rel WHERE gid = %s"</span><span class="token punctuation">,</span>
+                <span class="token punctuation">(</span>group<span class="token punctuation">.</span><span class="token builtin">id</span><span class="token punctuation">,</span><span class="token punctuation">)</span>
+            <span class="token punctuation">)</span>
+            rows <span class="token operator">=</span> self<span class="token punctuation">.</span>env<span class="token punctuation">.</span>cr<span class="token punctuation">.</span>fetchall<span class="token punctuation">(</span><span class="token punctuation">)</span>
+            user_ids <span class="token operator">+=</span> <span class="token punctuation">[</span>row<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token keyword">for</span> row <span class="token keyword">in</span> rows<span class="token punctuation">]</span>
+
+    <span class="token comment"># যদি কোনো user না থাকে</span>
+    <span class="token keyword">if</span> <span class="token operator">not</span> user_ids<span class="token punctuation">:</span>
+        <span class="token keyword">return</span> <span class="token punctuation">[</span><span class="token punctuation">(</span><span class="token string">'id'</span><span class="token punctuation">,</span> <span class="token string">'='</span><span class="token punctuation">,</span> <span class="token boolean">False</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
+
+    <span class="token comment"># duplicate remove করে final domain return</span>
+    <span class="token keyword">return</span> <span class="token punctuation">[</span><span class="token punctuation">(</span><span class="token string">'id'</span><span class="token punctuation">,</span> <span class="token string">'in'</span><span class="token punctuation">,</span> <span class="token builtin">list</span><span class="token punctuation">(</span><span class="token builtin">set</span><span class="token punctuation">(</span>user_ids<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
+</code></pre>
+<p><strong>একই ফিল্ড ব্যবহারকারীর গ্রুপ অনুযায়ী আলাদা আচরণ করবে এবং আলাদা ভিউ দেখাবে।</strong></p>
+<pre class=" language-xml"><code class="prism  language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>xpath</span> <span class="token attr-name">expr</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>//field[@name=<span class="token punctuation">'</span>name<span class="token punctuation">'</span>]<span class="token punctuation">"</span></span> <span class="token attr-name">position</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>replace<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+
+    <span class="token comment">&lt;!-- Sales Manager can edit (with condition) --&gt;</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>field</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>name<span class="token punctuation">"</span></span>
+           <span class="token attr-name">groups</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>zencore_groups.group_zencore_clm_sales_manager<span class="token punctuation">"</span></span>
+           <span class="token attr-name">readonly</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>status == <span class="token punctuation">'</span>approved<span class="token punctuation">'</span> or status == <span class="token punctuation">'</span>reject<span class="token punctuation">'</span><span class="token punctuation">"</span></span><span class="token punctuation">/&gt;</span></span>
+
+    <span class="token comment">&lt;!-- Other groups cannot edit --&gt;</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>field</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>name<span class="token punctuation">"</span></span>
+           <span class="token attr-name">groups</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>zencore_groups.group_zencore_clm_salesperson,
+                   zencore_groups.group_zencore_clm_ccm,
+                   zencore_groups.group_zencore_clm_warehouse,
+                   zencore_groups.group_zencore_clm_tdo,
+                   zencore_groups.group_zencore_clm_finance<span class="token punctuation">"</span></span>
+           <span class="token attr-name">readonly</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>1<span class="token punctuation">"</span></span><span class="token punctuation">/&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>xpath</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+</div>
+</body>
+
+</html>
