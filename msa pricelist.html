@@ -112,6 +112,13 @@
     domain <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">(</span><span class="token string">'status'</span><span class="token punctuation">,</span> <span class="token string">'='</span><span class="token punctuation">,</span> <span class="token string">'approved'</span><span class="token punctuation">)</span><span class="token punctuation">]</span> <span class="token operator">+</span> domain
     <span class="token keyword">return</span> <span class="token builtin">super</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>_search<span class="token punctuation">(</span>domain<span class="token punctuation">,</span> offset<span class="token operator">=</span>offset<span class="token punctuation">,</span> limit<span class="token operator">=</span>limit<span class="token punctuation">,</span> order<span class="token operator">=</span>order<span class="token punctuation">,</span> <span class="token operator">**</span>kwargs<span class="token punctuation">)</span>
 </code></pre>
+
+    <!-- active check -->
+    <record id="product.product_pricelist_action2" model="ir.actions.act_window">
+        <field name="context">{'show_all_pricelist': True}</field>
+    </record>
+
+    
 <p><strong>স্ট্যাটাস পরিবর্তন হলে সিস্টেমে পরিষ্কারভাবে দেখানো হবে—কে পরিবর্তন করেছে, কার জন্য পরিবর্তন করেছে এবং কোন স্ট্যাটাসে পরিবর্তন করা হয়েছে।</strong></p>
 <pre class=" language-python"><code class="prism  language-python"><span class="token keyword">def</span> <span class="token function">write</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> vals<span class="token punctuation">)</span><span class="token punctuation">:</span>
     <span class="token comment"># approve দিলে reject false হবে</span>
