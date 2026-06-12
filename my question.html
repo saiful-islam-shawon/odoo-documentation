@@ -1,0 +1,54 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome file</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2 id="my-question">My Question</h2>
+<p>#: odoo te always <code>for rec in self:</code> ata kno use kora hoi<br>
+<strong>Answer:</strong>  Odoo তে self মানে সবসময় একটা record না, একটা recordset।</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token comment"># self হতে পারে —</span>
+self <span class="token operator">=</span> product<span class="token punctuation">.</span>pricelist<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>           <span class="token comment"># একটা record</span>
+self <span class="token operator">=</span> product<span class="token punctuation">.</span>pricelist<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span>     <span class="token comment"># তিনটা record</span>
+self <span class="token operator">=</span> product<span class="token punctuation">.</span>pricelist<span class="token punctuation">(</span><span class="token punctuation">)</span>            <span class="token comment"># খালি recordset</span>
+</code></pre>
+<h1 id="section"></h1>
+<p>#: <code>self.env.ref()</code> ar kaj ki<br>
+<strong>Answer :</strong> <code>self.env.ref()</code> দিয়ে  XML ID থেকে record খোঁজা হয়।<br>
+Odoo তে প্রতিটা record এর একটা unique <strong>XML ID</strong> থাকে। যেমন:</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token operator">&lt;</span>record <span class="token builtin">id</span><span class="token operator">=</span><span class="token string">"mail_activity_data_todo"</span> model<span class="token operator">=</span><span class="token string">"mail.activity.type"</span><span class="token operator">&gt;</span>
+</code></pre>
+<p>এই record টা database এ আছে, কিন্তু Python এ access করতে হলে <code>self.env.ref()</code> ব্যবহার করো:</p>
+<pre class=" language-python"><code class="prism  language-python">activity_type <span class="token operator">=</span> self<span class="token punctuation">.</span>env<span class="token punctuation">.</span>ref<span class="token punctuation">(</span><span class="token string">'mail.mail_activity_data_todo'</span><span class="token punctuation">)</span>
+<span class="token comment"># mail = module name</span>
+<span class="token comment"># mail_activity_data_todo = record এর id</span>
+</code></pre>
+<h1 id="section-1"></h1>
+<p>#: filter and lambda when use kora hoi<br>
+<strong>Answer:</strong> <code>filtered()</code> with lambda ব্যবহার করা হয় যখন recordset থেকে condition অনুযায়ী specific records বের করতে হয়।</p>
+<pre class=" language-python"><code class="prism  language-python">approver <span class="token operator">=</span> rec<span class="token punctuation">.</span>approve_user_ids<span class="token punctuation">.</span>filtered<span class="token punctuation">(</span><span class="token keyword">lambda</span> a<span class="token punctuation">:</span> a<span class="token punctuation">.</span>user_id<span class="token punctuation">.</span><span class="token builtin">id</span> <span class="token operator">==</span> current_user<span class="token punctuation">.</span><span class="token builtin">id</span><span class="token punctuation">)</span>
+</code></pre>
+<p><code>approve_user_ids</code> তে অনেক user থাকতে পারে, সেখান থেকে <strong>শুধু current user এর record</strong> বের করছে।</p>
+<h1 id="section-2"></h1>
+<p>#: <code>get()</code> kno use kora hoi<br>
+<strong>Answer:</strong> <code>get()</code> দিয়ে dictionary থেকে safely value বের করা হয়।<br>
+<code>vals</code> হলো একটা dictionary, যেমন:</p>
+<pre class=" language-python"><code class="prism  language-python">vals <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token string">'approve'</span><span class="token punctuation">:</span> <span class="token boolean">True</span><span class="token punctuation">,</span> <span class="token string">'user_id'</span><span class="token punctuation">:</span> <span class="token number">5</span><span class="token punctuation">}</span>
+</code></pre>
+<p><code>get()</code> vs direct access:</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token comment"># ❌ direct access — key না থাকলে KeyError দেবে</span>
+<span class="token keyword">if</span> vals<span class="token punctuation">[</span><span class="token string">'approve'</span><span class="token punctuation">]</span><span class="token punctuation">:</span>  
+
+<span class="token comment"># ✅ get() — key না থাকলে None return করবে, error দেবে না</span>
+<span class="token keyword">if</span> vals<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">'approve'</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+</code></pre>
+<h1 id="section-3"></h1>
+</div>
+</body>
+
+</html>

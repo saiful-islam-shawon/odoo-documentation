@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome file</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="new-learning">New Learning</h1>
+<p>#: fileld ar maddome readonly thik kora</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">class</span>  <span class="token class-name">ProductPricelist</span><span class="token punctuation">(</span>models<span class="token punctuation">.</span>Model<span class="token punctuation">)</span><span class="token punctuation">:</span>
+	_inherit  <span class="token operator">=</span>  <span class="token string">'product.pricelist'</span>
+
+	status  <span class="token operator">=</span>  fields<span class="token punctuation">.</span>Selection<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">(</span><span class="token string">'draft'</span><span class="token punctuation">,</span> <span class="token string">'Draft'</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token string">'pending'</span><span class="token punctuation">,</span> <span class="token string">'Pending'</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token string">'approved'</span><span class="token punctuation">,</span> <span class="token string">'Approved'</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token string">'rejected'</span><span class="token punctuation">,</span> <span class="token string">'rejected'</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">,</span> string<span class="token operator">=</span><span class="token string">'Status'</span><span class="token punctuation">,</span> default<span class="token operator">=</span><span class="token string">'draft'</span><span class="token punctuation">,</span> tracking<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">,</span> compute<span class="token operator">=</span><span class="token string">"_compute_status_change"</span><span class="token punctuation">,</span> store<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">,</span> readonly<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">)</span>
+	approve_user_ids  <span class="token operator">=</span>  fields<span class="token punctuation">.</span>One2many<span class="token punctuation">(</span><span class="token string">'approve.user'</span><span class="token punctuation">,</span> <span class="token string">'product_pricelist_id'</span><span class="token punctuation">,</span> tracking<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+	is_name_readonly  <span class="token operator">=</span>  fields<span class="token punctuation">.</span>Boolean<span class="token punctuation">(</span>compute<span class="token operator">=</span><span class="token string">"_compute_is_name_readonly"</span><span class="token punctuation">)</span>
+
+  
+
+	@api<span class="token punctuation">.</span>depends<span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token keyword">def</span>  <span class="token function">_compute_is_name_readonly</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+		<span class="token keyword">for</span>  rec  <span class="token keyword">in</span>  self<span class="token punctuation">:</span>
+			<span class="token keyword">if</span>  self<span class="token punctuation">.</span>env<span class="token punctuation">.</span>user<span class="token punctuation">.</span>has_group<span class="token punctuation">(</span><span class="token string">'zencore_pricelist.sales_manager_group'</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+			rec<span class="token punctuation">.</span>is_name_readonly  <span class="token operator">=</span>  <span class="token boolean">False</span>
+			<span class="token keyword">else</span><span class="token punctuation">:</span>
+			rec<span class="token punctuation">.</span>is_name_readonly  <span class="token operator">=</span>  <span class="token boolean">True</span>
+</code></pre>
+<pre class=" language-xml"><code class="prism  language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>xpath</span>  <span class="token attr-name">expr</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>//field[@name=<span class="token punctuation">'</span>country_group_ids<span class="token punctuation">'</span>]<span class="token punctuation">"</span></span>  <span class="token attr-name">position</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>replace<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>field</span>  <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>is_name_readonly<span class="token punctuation">"</span></span>  <span class="token attr-name">invisible</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>1<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>field</span><span class="token punctuation">&gt;</span></span>
+	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>field</span>  <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>country_group_ids<span class="token punctuation">"</span></span>  <span class="token attr-name">widget</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>many2many_tags<span class="token punctuation">"</span></span>  <span class="token attr-name">readonly</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>is_name_readonly<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>field</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>xpath</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<h1 id="section"></h1>
+<p>#: sudu matro group ar under aa thaka oi sokol user ke niea asa</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">class</span>  <span class="token class-name">ApproveUser</span><span class="token punctuation">(</span>models<span class="token punctuation">.</span>Model<span class="token punctuation">)</span><span class="token punctuation">:</span>
+	_name  <span class="token operator">=</span>  <span class="token string">'approve.user'</span>
+	_rec_name  <span class="token operator">=</span>  <span class="token string">'user_id'</span>
+	
+	user_id  <span class="token operator">=</span>  fields<span class="token punctuation">.</span>Many2one<span class="token punctuation">(</span><span class="token string">'res.users'</span><span class="token punctuation">,</span> string<span class="token operator">=</span><span class="token string">"Users"</span><span class="token punctuation">,</span> domain<span class="token operator">=</span><span class="token keyword">lambda</span>  self<span class="token punctuation">:</span> self<span class="token punctuation">.</span>_get_valid_user<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+	approve  <span class="token operator">=</span>  fields<span class="token punctuation">.</span>Boolean<span class="token punctuation">(</span>string<span class="token operator">=</span><span class="token string">"Approve"</span><span class="token punctuation">,</span> default<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">)</span>
+	reject  <span class="token operator">=</span>  fields<span class="token punctuation">.</span>Boolean<span class="token punctuation">(</span>string<span class="token operator">=</span><span class="token string">"Rejected"</span><span class="token punctuation">,</span> default<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">)</span>
+	product_pricelist_id  <span class="token operator">=</span>  fields<span class="token punctuation">.</span>Many2one<span class="token punctuation">(</span><span class="token string">'product.pricelist'</span><span class="token punctuation">)</span>
+
+
+	<span class="token comment"># user domain</span>
+	<span class="token keyword">def</span>  <span class="token function">_get_valid_user</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+		groups  <span class="token operator">=</span> <span class="token punctuation">[</span>
+		self<span class="token punctuation">.</span>env<span class="token punctuation">.</span>ref<span class="token punctuation">(</span><span class="token string">'zencore_pricelist.sales_manager_group'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token builtin">id</span><span class="token punctuation">,</span>
+		self<span class="token punctuation">.</span>env<span class="token punctuation">.</span>ref<span class="token punctuation">(</span><span class="token string">'zencore_pricelist.sales_persion_group'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token builtin">id</span><span class="token punctuation">,</span>
+		self<span class="token punctuation">.</span>env<span class="token punctuation">.</span>ref<span class="token punctuation">(</span><span class="token string">'zencore_pricelist.finance_manager_group'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token builtin">id</span><span class="token punctuation">,</span>
+		<span class="token punctuation">]</span>
+	<span class="token keyword">return</span> <span class="token punctuation">[</span><span class="token punctuation">(</span><span class="token string">'group_ids'</span><span class="token punctuation">,</span> <span class="token string">'in'</span><span class="token punctuation">,</span> groups<span class="token punctuation">)</span><span class="token punctuation">]</span>
+</code></pre>
+</div>
+</body>
+
+</html>
