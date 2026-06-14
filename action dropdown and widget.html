@@ -90,6 +90,54 @@
         <span class="token comment"># self.write({'validity_date': self.new_date})</span>
         <span class="token keyword">return</span> <span class="token punctuation">{</span><span class="token string">'type'</span><span class="token punctuation">:</span> <span class="token string">'ir.actions.act_window_close'</span><span class="token punctuation">}</span>
 </code></pre>
+<h1 id="section-4"></h1>
+<h1 id="section-5"></h1>
+<h1 id="popup-dialogwidget-খোলার-উপায়">Popup (Dialog/Widget) খোলার উপায়</h1>
+<h3 id="method-1-—-wizard-সবচেয়ে-সহজ-ও-common-✅">Method 1 — Wizard (সবচেয়ে সহজ ও common) ✅</h3>
+<p>Button XML</p>
+<pre class=" language-xml"><code class="prism  language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">string</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>Open Popup<span class="token punctuation">"</span></span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>action_open_popup<span class="token punctuation">"</span></span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>object<span class="token punctuation">"</span></span><span class="token punctuation">/&gt;</span></span>
+</code></pre>
+<h4 id="python">Python</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">def</span> <span class="token function">action_open_popup</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    self<span class="token punctuation">.</span>ensure_one<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> <span class="token punctuation">{</span>
+        <span class="token string">'type'</span><span class="token punctuation">:</span> <span class="token string">'ir.actions.act_window'</span><span class="token punctuation">,</span>
+        <span class="token string">'name'</span><span class="token punctuation">:</span> <span class="token string">'Popup Title'</span><span class="token punctuation">,</span>
+        <span class="token string">'res_model'</span><span class="token punctuation">:</span> <span class="token string">'my.wizard'</span><span class="token punctuation">,</span>  <span class="token comment"># TransientModel</span>
+        <span class="token string">'view_mode'</span><span class="token punctuation">:</span> <span class="token string">'form'</span><span class="token punctuation">,</span>
+        <span class="token string">'target'</span><span class="token punctuation">:</span> <span class="token string">'new'</span><span class="token punctuation">,</span>  <span class="token comment"># popup এ খুলবে</span>
+    <span class="token punctuation">}</span>
+</code></pre>
+<p>Wizard Model</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">class</span> <span class="token class-name">MyWizard</span><span class="token punctuation">(</span>models<span class="token punctuation">.</span>TransientModel<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    _name <span class="token operator">=</span> <span class="token string">'my.wizard'</span>
+    _description <span class="token operator">=</span> <span class="token string">'My Wizard'</span>
+
+    name <span class="token operator">=</span> fields<span class="token punctuation">.</span>Char<span class="token punctuation">(</span>string<span class="token operator">=</span><span class="token string">'Name'</span><span class="token punctuation">)</span>
+    date <span class="token operator">=</span> fields<span class="token punctuation">.</span>Date<span class="token punctuation">(</span>string<span class="token operator">=</span><span class="token string">'Date'</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">def</span> <span class="token function">action_confirm</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token comment"># কাজ করো</span>
+        <span class="token keyword">return</span> <span class="token punctuation">{</span><span class="token string">'type'</span><span class="token punctuation">:</span> <span class="token string">'ir.actions.act_window_close'</span><span class="token punctuation">}</span>
+</code></pre>
+<p>Wizard View</p>
+<pre class=" language-xml"><code class="prism  language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>record</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>my_wizard_form_view<span class="token punctuation">"</span></span> <span class="token attr-name">model</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>ir.ui.view<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>field</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>name<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>my.wizard.form<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>field</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>field</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>model<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>my.wizard<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>field</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>field</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>arch<span class="token punctuation">"</span></span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>xml<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>form</span> <span class="token attr-name">string</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>Popup Title<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>group</span><span class="token punctuation">&gt;</span></span>
+                <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>field</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>name<span class="token punctuation">"</span></span><span class="token punctuation">/&gt;</span></span>
+                <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>field</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>date<span class="token punctuation">"</span></span><span class="token punctuation">/&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>group</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>footer</span><span class="token punctuation">&gt;</span></span>
+                <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">string</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>Confirm<span class="token punctuation">"</span></span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>action_confirm<span class="token punctuation">"</span></span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>object<span class="token punctuation">"</span></span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>oe_highlight<span class="token punctuation">"</span></span><span class="token punctuation">/&gt;</span></span>
+                <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">string</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>Cancel<span class="token punctuation">"</span></span> <span class="token attr-name">special</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>cancel<span class="token punctuation">"</span></span><span class="token punctuation">/&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>footer</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>form</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>field</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>record</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
 </div>
 </body>
 
